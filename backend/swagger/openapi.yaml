@@ -1,0 +1,1748 @@
+openapi: 3.0.3
+info:
+  title: ConectaLocal API
+  version: 1.0.0
+  description: |
+    **Stack:** React + Vite (frontend), Node.js + Express (backend), Supabase (base de datos,
+    autenticación, almacenamiento de imágenes y realtime).
+
+    **Autenticación:** el backend utiliza los JWT emitidos por Supabase Auth.
+
+    **Roles:**
+    - `usuario`: busca servicios, escribe reseñas, inicia conversaciones y participa en el foro.
+    - `trabajador`: administra sus negocios y servicios, responde mensajes y participa en el foro.
+
+    **Fuera de alcance:** cálculo de rutas, envío de imágenes en el chat,
+    reservaciones/contratos automatizados y verificación oficial de trabajadores.
+  contact:
+    name:  ConectaLocal
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Desarrollo local y pruebas
+  - url: https://api.conectalocal.example/api/v1
+    description: Despliegue sitio funcional
+
+# ENDPOINTS
+tags:
+  - name: Autenticación
+    description: Registro, inicio y cierre de sesión
+  - name: Perfiles
+    description: Perfil personal de usuarios y trabajadores
+  - name: Categorías
+    description: Categorías de servicios
+  - name: Negocios
+    description: Registro, administración y búsqueda de negocios
+  - name: Mapa
+    description: Consulta geográfica de negocios cercanos
+  - name: Servicios
+    description: Servicios que ofrece cada negocio
+  - name: Reseñas
+    description: Calificaciones por estrellas y comentarios
+  - name: Mensajería
+    description: Chat privado entre usuario y trabajador (solo texto)
+  - name: Foro
+    description: Foro comunitario de preguntas, experiencias y recomendaciones
+
+security:
+  - bearerAuth: []
+
+# RUTAS
+paths:
+  #AUTENTICACIÓN
+  #REGISTRO
+  /auth/register:
+    post:
+      tags: [Autenticación]
+      summary: Registrar una cuenta
+      description: Crea una cuenta de tipo `usuario` o `trabajador`.
+      operationId: registrarCuenta
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroRequest'
+            example:
+              nombre: María López
+              email: maria@correo.com
+              password: Segura#2026
+              rol: trabajador
+              telefono: '4611234567'
+      responses:
+        '201':
+          description: Cuenta creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionResponse'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '409':
+          description: El correo ya está registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          $ref: '#/components/responses/DemasiadasSolicitudes'
+
+  #LOGIN
+  /auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión
+      operationId: iniciarSesion
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionResponse'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '429':
+          $ref: '#/components/responses/DemasiadasSolicitudes'
+
+   #CIERRE SESIÓN       
+  /auth/logout:
+    post:
+      tags: [Autenticación]
+      summary: Cerrar sesión
+      operationId: cerrarSesion
+      responses:
+        '204':
+          description: Sesión cerrada
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+  # PERFILES
+  /perfiles/user:
+    get:
+      tags: [Perfiles]
+      summary: Consultar mi perfil
+      operationId: obtenerMiPerfil
+      responses:
+        '200':
+          description: Perfil de la cuenta autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Perfil'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+    patch:
+      tags: [Perfiles]
+      summary: Actualizar mi perfil
+      operationId: actualizarMiPerfil
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerfilActualizar'
+      responses:
+        '200':
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Perfil'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /perfiles/user/imageperfil:
+    put:
+      tags: [Perfiles]
+      summary: Subir o reemplazar mi foto de perfil
+      description: Se almacena en Supabase Storage. Máximo 5 MB, formatos JPG, PNG o WebP.
+      operationId: subirMiAvatar
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [archivo]
+              properties:
+                archivo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Foto actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avatarUrl:
+                    type: string
+                    format: uri
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '413':
+          $ref: '#/components/responses/ArchivoDemasiadoGrande'
+
+  /perfiles/{perfilId}:
+    get:
+      tags: [Perfiles]
+      summary: Consultar el perfil público de una cuenta
+      description: Devuelve solo datos públicos (nombre, foto, rol). No expone correo ni ubicación.
+      operationId: obtenerPerfilPublico
+      parameters:
+        - $ref: '#/components/parameters/PerfilId'
+      responses:
+        '200':
+          description: Perfil público
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerfilPublico'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  # CATEGORÍAS 
+  /categorias:
+    get:
+      tags: [Categorías]
+      summary: Listar categorías de servicios
+      operationId: listarCategorias
+      security: []
+      responses:
+        '200':
+          description: Lista de categorías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categoria'
+
+  #  NEGOCIOS
+  /negocios:
+    get:
+      tags: [Negocios]
+      summary: Buscar y filtrar negocios
+      description: |
+        Búsqueda con filtros por nombre, categoría, ubicación (cercanía) y calificación mínima.
+        Permite comparar servicios mediante ordenamiento. Es público.
+      operationId: buscarNegocios
+      security: []
+      parameters:
+        - name: q
+          in: query
+          description: Texto a buscar en nombre o descripción
+          schema:
+            type: string
+            maxLength: 100
+        - name: categoriaId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: lat
+          in: query
+          description: Latitud de referencia (requiere `lng`)
+          schema:
+            type: number
+            format: double
+            minimum: -90
+            maximum: 90
+        - name: lng
+          in: query
+          description: Longitud de referencia (requiere `lat`)
+          schema:
+            type: number
+            format: double
+            minimum: -180
+            maximum: 180
+        - name: radioKm
+          in: query
+          description: Radio de búsqueda en kilómetros (requiere `lat` y `lng`)
+          schema:
+            type: number
+            minimum: 0.1
+            maximum: 100
+            default: 5
+        - name: calificacionMin
+          in: query
+          description: Calificación promedio mínima
+          schema:
+            type: number
+            minimum: 1
+            maximum: 5
+        - name: orden
+          in: query
+          schema:
+            type: string
+            enum: [relevancia, calificacion, distancia, recientes]
+            default: relevancia
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Resultados paginados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NegocioPagina'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+    post:
+      tags: [Negocios]
+      summary: Registrar un negocio
+      description: Solo cuentas con rol `trabajador`.
+      operationId: crearNegocio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NegocioCrear'
+      responses:
+        '201':
+          description: Negocio creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Negocio'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+
+  /negocios/mios:
+    get:
+      tags: [Negocios]
+      summary: Listar los negocios que administro
+      description: Solo cuentas con rol `trabajador`.
+      operationId: listarMisNegocios
+      responses:
+        '200':
+          description: Negocios del trabajador autenticado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Negocio'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+
+  /negocios/{negocioId}:
+    parameters:
+      - $ref: '#/components/parameters/NegocioId'
+    get:
+      tags: [Negocios]
+      summary: Consultar el detalle de un negocio
+      operationId: obtenerNegocio
+      security: []
+      responses:
+        '200':
+          description: Detalle del negocio con fotos y servicios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NegocioDetalle'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    put:
+      tags: [Negocios]
+      summary: Actualizar un negocio
+      description: Solo el trabajador dueño del negocio.
+      operationId: actualizarNegocio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NegocioCrear'
+      responses:
+        '200':
+          description: Negocio actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Negocio'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    delete:
+      tags: [Negocios]
+      summary: Eliminar un negocio
+      description: Solo el trabajador dueño del negocio. Elimina también sus servicios y fotos.
+      operationId: eliminarNegocio
+      responses:
+        '204':
+          description: Negocio eliminado
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  /negocios/{negocioId}/fotos:
+    parameters:
+      - $ref: '#/components/parameters/NegocioId'
+    post:
+      tags: [Negocios]
+      summary: Subir una fotografía del negocio
+      description: Solo el dueño. Máximo 5 MB; JPG, PNG o WebP. Máximo 10 fotos por negocio.
+      operationId: subirFotoNegocio
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [archivo]
+              properties:
+                archivo:
+                  type: string
+                  format: binary
+                descripcion:
+                  type: string
+                  maxLength: 200
+      responses:
+        '201':
+          description: Foto agregada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FotoNegocio'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '413':
+          $ref: '#/components/responses/ArchivoDemasiadoGrande'
+
+  /negocios/{negocioId}/fotos/{fotoId}:
+    delete:
+      tags: [Negocios]
+      summary: Eliminar una fotografía del negocio
+      operationId: eliminarFotoNegocio
+      parameters:
+        - $ref: '#/components/parameters/NegocioId'
+        - name: fotoId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Foto eliminada
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  #  MAPA
+  /mapa/negocios:
+    get:
+      tags: [Mapa]
+      summary: Obtener marcadores de negocios para el mapa
+      description: |
+        Devuelve una versión ligera de los negocios dentro de un radio, pensada para pintar
+        marcadores en el mapa interactivo. Al seleccionar un marcador, el cliente consulta
+        `GET /negocios/{negocioId}`. No calcula rutas.
+      operationId: obtenerMarcadoresMapa
+      security: []
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            minimum: -90
+            maximum: 90
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            minimum: -180
+            maximum: 180
+        - name: radioKm
+          in: query
+          schema:
+            type: number
+            minimum: 0.1
+            maximum: 100
+            default: 5
+        - name: categoriaId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: q
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: limite
+          in: query
+          description: Máximo de marcadores a devolver
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 200
+      responses:
+        '200':
+          description: Marcadores dentro del radio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarcadorMapa'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+
+  # SERVICIOS 
+  /negocios/{negocioId}/servicios:
+    parameters:
+      - $ref: '#/components/parameters/NegocioId'
+    get:
+      tags: [Servicios]
+      summary: Listar los servicios de un negocio
+      operationId: listarServiciosNegocio
+      security: []
+      responses:
+        '200':
+          description: Servicios del negocio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Servicio'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    post:
+      tags: [Servicios]
+      summary: Publicar un servicio
+      description: Solo el trabajador dueño del negocio.
+      operationId: crearServicio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServicioCrear'
+      responses:
+        '201':
+          description: Servicio creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Servicio'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  /negocios/{negocioId}/servicios/{servicioId}:
+    parameters:
+      - $ref: '#/components/parameters/NegocioId'
+      - name: servicioId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags: [Servicios]
+      summary: Actualizar un servicio
+      operationId: actualizarServicio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServicioCrear'
+      responses:
+        '200':
+          description: Servicio actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Servicio'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    delete:
+      tags: [Servicios]
+      summary: Eliminar un servicio
+      operationId: eliminarServicio
+      responses:
+        '204':
+          description: Servicio eliminado
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  # RESEÑAS 
+  /negocios/{negocioId}/resenas:
+    parameters:
+      - $ref: '#/components/parameters/NegocioId'
+    get:
+      tags: [Reseñas]
+      summary: Listar reseñas de un negocio
+      operationId: listarResenas
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Reseñas y resumen de calificaciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResenaPagina'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    post:
+      tags: [Reseñas]
+      summary: Escribir una reseña
+      description: |
+        Solo cuentas con rol `usuario`. Cada usuario puede tener una sola reseña por negocio
+        y un trabajador no puede reseñar sus propios negocios.
+      operationId: crearResena
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResenaCrear'
+      responses:
+        '201':
+          description: Reseña creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resena'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          description: Ya existe una reseña de este usuario para el negocio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /resenas/{resenaId}:
+    parameters:
+      - name: resenaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags: [Reseñas]
+      summary: Editar mi reseña
+      operationId: actualizarResena
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResenaCrear'
+      responses:
+        '200':
+          description: Reseña actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resena'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    delete:
+      tags: [Reseñas]
+      summary: Eliminar mi reseña
+      operationId: eliminarResena
+      responses:
+        '204':
+          description: Reseña eliminada
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  #  MENSAJERÍA 
+  /conversaciones:
+    get:
+      tags: [Mensajería]
+      summary: Listar mis conversaciones
+      description: Solo devuelve conversaciones en las que participa la cuenta autenticada.
+      operationId: listarConversaciones
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Conversaciones ordenadas por último mensaje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversacionPagina'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+    post:
+      tags: [Mensajería]
+      summary: Iniciar una conversación con un trabajador
+      description: |
+        Solo cuentas con rol `usuario`. Si ya existe una conversación con ese negocio,
+        se devuelve la existente. La mensajería es únicamente entre usuario y trabajador.
+      operationId: crearConversacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [negocioId, mensaje]
+              properties:
+                negocioId:
+                  type: string
+                  format: uuid
+                mensaje:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                  description: Primer mensaje (solo texto)
+      responses:
+        '200':
+          description: Ya existía una conversación; se agregó el mensaje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversacion'
+        '201':
+          description: Conversación creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversacion'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  /conversaciones/{conversacionId}/mensajes:
+    parameters:
+      - $ref: '#/components/parameters/ConversacionId'
+    get:
+      tags: [Mensajería]
+      summary: Listar los mensajes de una conversación
+      description: Solo los dos participantes pueden consultarla.
+      operationId: listarMensajes
+      parameters:
+        - name: antesDe
+          in: query
+          description: Devuelve mensajes anteriores a esta fecha (paginación por cursor)
+          schema:
+            type: string
+            format: date-time
+        - name: limite
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Mensajes en orden cronológico descendente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mensaje'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    post:
+      tags: [Mensajería]
+      summary: Enviar un mensaje de texto
+      description: No se admiten imágenes ni archivos adjuntos.
+      operationId: enviarMensaje
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contenido]
+              properties:
+                contenido:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+      responses:
+        '201':
+          description: Mensaje enviado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mensaje'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '429':
+          $ref: '#/components/responses/DemasiadasSolicitudes'
+
+  /conversaciones/{conversacionId}/leido:
+    post:
+      tags: [Mensajería]
+      summary: Marcar como leídos los mensajes recibidos
+      operationId: marcarConversacionLeida
+      parameters:
+        - $ref: '#/components/parameters/ConversacionId'
+      responses:
+        '204':
+          description: Mensajes marcados como leídos
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  # FORO 
+  /foro/publicaciones:
+    get:
+      tags: [Foro]
+      summary: Listar publicaciones del foro
+      operationId: listarPublicaciones
+      security: []
+      parameters:
+        - name: q
+          in: query
+          description: Texto a buscar en título o contenido
+          schema:
+            type: string
+            maxLength: 100
+        - name: tipo
+          in: query
+          schema:
+            $ref: '#/components/schemas/TipoPublicacion'
+        - name: categoriaId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Publicaciones paginadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicacionPagina'
+    post:
+      tags: [Foro]
+      summary: Crear una publicación
+      description: Disponible para cualquier cuenta autenticada.
+      operationId: crearPublicacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicacionCrear'
+      responses:
+        '201':
+          description: Publicación creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publicacion'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /foro/publicaciones/{publicacionId}:
+    parameters:
+      - $ref: '#/components/parameters/PublicacionId'
+    get:
+      tags: [Foro]
+      summary: Consultar una publicación
+      operationId: obtenerPublicacion
+      security: []
+      responses:
+        '200':
+          description: Detalle de la publicación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publicacion'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    put:
+      tags: [Foro]
+      summary: Editar mi publicación
+      operationId: actualizarPublicacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicacionCrear'
+      responses:
+        '200':
+          description: Publicación actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publicacion'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    delete:
+      tags: [Foro]
+      summary: Eliminar mi publicación
+      operationId: eliminarPublicacion
+      responses:
+        '204':
+          description: Publicación eliminada
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  /foro/publicaciones/{publicacionId}/comentarios:
+    parameters:
+      - $ref: '#/components/parameters/PublicacionId'
+    get:
+      tags: [Foro]
+      summary: Listar comentarios de una publicación
+      operationId: listarComentarios
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Comentarios paginados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComentarioPagina'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+    post:
+      tags: [Foro]
+      summary: Comentar una publicación
+      operationId: crearComentario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contenido]
+              properties:
+                contenido:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+      responses:
+        '201':
+          description: Comentario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comentario'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+  /foro/comentarios/{comentarioId}:
+    delete:
+      tags: [Foro]
+      summary: Eliminar mi comentario
+      operationId: eliminarComentario
+      parameters:
+        - name: comentarioId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Comentario eliminado
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access token emitido por Supabase Auth.
+
+  parameters:
+    PerfilId:
+      name: perfilId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    NegocioId:
+      name: negocioId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ConversacionId:
+      name: conversacionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PublicacionId:
+      name: publicacionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Pagina:
+      name: pagina
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Limite:
+      name: limite
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+
+  responses:
+    SolicitudInvalida:
+      description: Datos inválidos o incompletos
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorValidacion'
+    NoAutenticado:
+      description: Falta el token o es inválido/expirado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Prohibido:
+      description: La cuenta no tiene permiso para esta acción
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoEncontrado:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ArchivoDemasiadoGrande:
+      description: El archivo excede el tamaño permitido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DemasiadasSolicitudes:
+      description: Se superó el límite de solicitudes
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    # ── REGISTROS ──
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          example: NO_ENCONTRADO
+        mensaje:
+          type: string
+          example: El recurso solicitado no existe
+    ErrorValidacion:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            detalles:
+              type: array
+              items:
+                type: object
+                properties:
+                  campo:
+                    type: string
+                    example: email
+                  mensaje:
+                    type: string
+                    example: Formato de correo inválido
+    Rol:
+      type: string
+      enum: [usuario, trabajador]
+    Paginacion:
+      type: object
+      required: [pagina, limite, total]
+      properties:
+        pagina:
+          type: integer
+          example: 1
+        limite:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 57
+
+    # ── Autenticación ──
+    RegistroRequest:
+      type: object
+      required: [nombre, email, password, rol]
+      properties:
+        nombre:
+          type: string
+          minLength: 2
+          maxLength: 100
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+        rol:
+          $ref: '#/components/schemas/Rol'
+        telefono:
+          type: string
+          pattern: '^[0-9+\-\s]{7,20}$'
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    SesionResponse:
+      type: object
+      required: [accessToken, refreshToken, expiraEn, perfil]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiraEn:
+          type: integer
+          description: Segundos hasta que expira el access token
+          example: 3600
+        perfil:
+          $ref: '#/components/schemas/Perfil'
+
+    # ── Perfiles ──
+    Perfil:
+      type: object
+      required: [id, nombre, email, rol]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        email:
+          type: string
+          format: email
+        rol:
+          $ref: '#/components/schemas/Rol'
+        telefono:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        biografia:
+          type: string
+          maxLength: 500
+          nullable: true
+        creadoEn:
+          type: string
+          format: date-time
+    PerfilActualizar:
+      type: object
+      minProperties: 1
+      properties:
+        nombre:
+          type: string
+          minLength: 2
+          maxLength: 100
+        telefono:
+          type: string
+          pattern: '^[0-9+\-\s]{7,20}$'
+        biografia:
+          type: string
+          maxLength: 500
+    PerfilPublico:
+      type: object
+      required: [id, nombre, rol]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        rol:
+          $ref: '#/components/schemas/Rol'
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        biografia:
+          type: string
+          nullable: true
+
+    # ── Categorías ──
+    Categoria:
+      type: object
+      required: [id, nombre]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+          example: Plomería
+        icono:
+          type: string
+          nullable: true
+
+    # ── Negocios ──
+    Ubicacion:
+      type: object
+      required: [lat, lng]
+      properties:
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 20.5235
+        lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: -100.8157
+        direccion:
+          type: string
+          maxLength: 250
+          example: Calle Hidalgo 123, Centro
+    NegocioCrear:
+      type: object
+      required: [nombre, descripcion, categoriaId, ubicacion, contacto]
+      properties:
+        nombre:
+          type: string
+          minLength: 2
+          maxLength: 120
+        descripcion:
+          type: string
+          minLength: 10
+          maxLength: 1500
+        categoriaId:
+          type: string
+          format: uuid
+        ubicacion:
+          $ref: '#/components/schemas/Ubicacion'
+        contacto:
+          $ref: '#/components/schemas/Contacto'
+        horario:
+          type: string
+          maxLength: 250
+          example: Lunes a viernes de 9:00 a 18:00
+    Contacto:
+      type: object
+      minProperties: 1
+      properties:
+        telefono:
+          type: string
+          pattern: '^[0-9+\-\s]{7,20}$'
+        whatsapp:
+          type: string
+          pattern: '^[0-9+\-\s]{7,20}$'
+        email:
+          type: string
+          format: email
+        sitioWeb:
+          type: string
+          format: uri
+    Negocio:
+      type: object
+      required: [id, nombre, descripcion, categoria, ubicacion, contacto, propietarioId]
+      properties:
+        id:
+          type: string
+          format: uuid
+        propietarioId:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        categoria:
+          $ref: '#/components/schemas/Categoria'
+        ubicacion:
+          $ref: '#/components/schemas/Ubicacion'
+        contacto:
+          $ref: '#/components/schemas/Contacto'
+        horario:
+          type: string
+          nullable: true
+        fotoPrincipalUrl:
+          type: string
+          format: uri
+          nullable: true
+        calificacionPromedio:
+          type: number
+          minimum: 0
+          maximum: 5
+          example: 4.6
+        totalResenas:
+          type: integer
+          example: 12
+        distanciaKm:
+          type: number
+          nullable: true
+          description: Solo presente cuando se filtra por ubicación
+        creadoEn:
+          type: string
+          format: date-time
+    NegocioDetalle:
+      allOf:
+        - $ref: '#/components/schemas/Negocio'
+        - type: object
+          properties:
+            fotos:
+              type: array
+              items:
+                $ref: '#/components/schemas/FotoNegocio'
+            servicios:
+              type: array
+              items:
+                $ref: '#/components/schemas/Servicio'
+    NegocioPagina:
+      type: object
+      required: [datos, paginacion]
+      properties:
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Negocio'
+        paginacion:
+          $ref: '#/components/schemas/Paginacion'
+    FotoNegocio:
+      type: object
+      required: [id, url]
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        descripcion:
+          type: string
+          nullable: true
+    MarcadorMapa:
+      type: object
+      required: [id, nombre, categoriaId, lat, lng]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        categoriaId:
+          type: string
+          format: uuid
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+        calificacionPromedio:
+          type: number
+          minimum: 0
+          maximum: 5
+        distanciaKm:
+          type: number
+
+    # ── Servicios ──
+    ServicioCrear:
+      type: object
+      required: [nombre, descripcion]
+      properties:
+        nombre:
+          type: string
+          minLength: 2
+          maxLength: 120
+        descripcion:
+          type: string
+          minLength: 5
+          maxLength: 800
+        precioDesde:
+          type: number
+          format: double
+          minimum: 0
+          nullable: true
+          description: Precio de referencia en MXN (opcional)
+    Servicio:
+      allOf:
+        - $ref: '#/components/schemas/ServicioCrear'
+        - type: object
+          required: [id, negocioId]
+          properties:
+            id:
+              type: string
+              format: uuid
+            negocioId:
+              type: string
+              format: uuid
+
+    # ── Reseñas ──
+    ResenaCrear:
+      type: object
+      required: [estrellas]
+      properties:
+        estrellas:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comentario:
+          type: string
+          maxLength: 1000
+    Resena:
+      type: object
+      required: [id, negocioId, autor, estrellas, creadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        negocioId:
+          type: string
+          format: uuid
+        autor:
+          $ref: '#/components/schemas/PerfilPublico'
+        estrellas:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comentario:
+          type: string
+          nullable: true
+        creadoEn:
+          type: string
+          format: date-time
+        actualizadoEn:
+          type: string
+          format: date-time
+          nullable: true
+    ResenaPagina:
+      type: object
+      required: [datos, resumen, paginacion]
+      properties:
+        resumen:
+          type: object
+          properties:
+            promedio:
+              type: number
+              example: 4.6
+            total:
+              type: integer
+              example: 12
+            distribucion:
+              type: object
+              description: Cantidad de reseñas por número de estrellas
+              additionalProperties:
+                type: integer
+              example:
+                '1': 0
+                '2': 1
+                '3': 1
+                '4': 3
+                '5': 7
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resena'
+        paginacion:
+          $ref: '#/components/schemas/Paginacion'
+
+    # ── Mensajería ──
+    Mensaje:
+      type: object
+      required: [id, conversacionId, remitenteId, contenido, creadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        conversacionId:
+          type: string
+          format: uuid
+        remitenteId:
+          type: string
+          format: uuid
+        contenido:
+          type: string
+          maxLength: 2000
+        leido:
+          type: boolean
+        creadoEn:
+          type: string
+          format: date-time
+    Conversacion:
+      type: object
+      required: [id, usuario, trabajador, negocioId]
+      properties:
+        id:
+          type: string
+          format: uuid
+        negocioId:
+          type: string
+          format: uuid
+        usuario:
+          $ref: '#/components/schemas/PerfilPublico'
+        trabajador:
+          $ref: '#/components/schemas/PerfilPublico'
+        ultimoMensaje:
+          $ref: '#/components/schemas/Mensaje'
+        noLeidos:
+          type: integer
+          description: Mensajes sin leer para la cuenta autenticada
+          example: 2
+        actualizadoEn:
+          type: string
+          format: date-time
+    ConversacionPagina:
+      type: object
+      required: [datos, paginacion]
+      properties:
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conversacion'
+        paginacion:
+          $ref: '#/components/schemas/Paginacion'
+
+    # ── Foro ──
+    TipoPublicacion:
+      type: string
+      enum: [pregunta, experiencia, recomendacion]
+    PublicacionCrear:
+      type: object
+      required: [titulo, contenido, tipo]
+      properties:
+        titulo:
+          type: string
+          minLength: 5
+          maxLength: 150
+        contenido:
+          type: string
+          minLength: 10
+          maxLength: 3000
+        tipo:
+          $ref: '#/components/schemas/TipoPublicacion'
+        categoriaId:
+          type: string
+          format: uuid
+          nullable: true
+        negocioId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Negocio al que se refiere la recomendación o experiencia
+    Publicacion:
+      type: object
+      required: [id, titulo, contenido, tipo, autor, creadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        titulo:
+          type: string
+        contenido:
+          type: string
+        tipo:
+          $ref: '#/components/schemas/TipoPublicacion'
+        categoriaId:
+          type: string
+          format: uuid
+          nullable: true
+        negocioId:
+          type: string
+          format: uuid
+          nullable: true
+        autor:
+          $ref: '#/components/schemas/PerfilPublico'
+        totalComentarios:
+          type: integer
+          example: 4
+        creadoEn:
+          type: string
+          format: date-time
+        actualizadoEn:
+          type: string
+          format: date-time
+          nullable: true
+    PublicacionPagina:
+      type: object
+      required: [datos, paginacion]
+      properties:
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Publicacion'
+        paginacion:
+          $ref: '#/components/schemas/Paginacion'
+    Comentario:
+      type: object
+      required: [id, publicacionId, autor, contenido, creadoEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        publicacionId:
+          type: string
+          format: uuid
+        autor:
+          $ref: '#/components/schemas/PerfilPublico'
+        contenido:
+          type: string
+        creadoEn:
+          type: string
+          format: date-time
+    ComentarioPagina:
+      type: object
+      required: [datos, paginacion]
+      properties:
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comentario'
+        paginacion:
+          $ref: '#/components/schemas/Paginacion'

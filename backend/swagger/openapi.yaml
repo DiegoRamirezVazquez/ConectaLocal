@@ -54,7 +54,10 @@ paths:
     post:
       tags: [Autenticación]
       summary: Registrar una cuenta
-      description: Crea una cuenta de tipo `usuario` o `trabajador`.
+      description: |
+       Crea una cuenta y envía un correo de verificación obligatorio. Si se solicita el rol
+        `trabajador`, se registra una solicitud pendiente de aprobación administrativa; la
+        cuenta conserva el rol efectivo `usuario` hasta que un administrador la apruebe.
       operationId: registrarCuenta
       security: []
       requestBody:
@@ -71,11 +74,11 @@ paths:
               telefono: '4611234567'
       responses:
         '201':
-          description: Cuenta creada
+          description: Cuenta creada, se requiere confirmar el correo electrónico.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SesionResponse'
+                $ref: '#/components/schemas/RegistroResponse'
         '400':
           $ref: '#/components/responses/SolicitudInvalida'
         '409':
@@ -92,6 +95,7 @@ paths:
     post:
       tags: [Autenticación]
       summary: Iniciar sesión
+      description: Solo permite iniciar sesión después de verificar el correo electrónico.
       operationId: iniciarSesion
       security: []
       requestBody:
@@ -111,6 +115,12 @@ paths:
           $ref: '#/components/responses/SolicitudInvalida'
         '401':
           $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: El correo electrónico todavía no ha sido verificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '429':
           $ref: '#/components/responses/DemasiadasSolicitudes'
 
@@ -119,12 +129,14 @@ paths:
     post:
       tags: [Autenticación]
       summary: Cerrar sesión
+      description: Revoca la sesión actual de Supabase Auth.
       operationId: cerrarSesion
       responses:
         '204':
           description: Sesión cerrada
         '401':
           $ref: '#/components/responses/NoAutenticado'
+
   # PERFILES
   /perfiles/user:
     get:
@@ -1227,6 +1239,22 @@ components:
         telefono:
           type: string
           pattern: '^[0-9+\-\s]{7,20}$'
+    RegistroResponse:
+      type: object
+      required: [mensaje, confirmacionCorreoRequerida, solicitudTrabajador, perfil]
+      properties:
+        mensaje:
+          type: string
+          example: Se creó la cuenta. Confirma tu correo electrónico.
+        confirmacionCorreoRequerida:
+          type: boolean
+          example: true
+        solicitudTrabajador:
+          type: string
+          enum: [no_solicitada, pendiente]
+          example: pendiente
+        perfil:
+          $ref: '#/components/schemas/Perfil'
     LoginRequest:
       type: object
       required: [email, password]
@@ -1292,9 +1320,11 @@ components:
         telefono:
           type: string
           pattern: '^[0-9+\-\s]{7,20}$'
+          nullable: true
         biografia:
           type: string
           maxLength: 500
+          nullable: true
     PerfilPublico:
       type: object
       required: [id, nombre, rol]

@@ -1,46 +1,81 @@
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
-const YAML = require('yaml');
-const fs = require('fs');
-const path = require('path');
+const cookieParser = require('cookie-parser');
+
+const authRoutes = require('./routes/authRoutes');
+const solicitudesTrabajadorRoutes = require('./routes/solicitudesTrabajadorRoutes');
+const { verificarToken } = require('./middlewares/authMiddleware');
+const administradorRoutes = require('./routes/administradorRoutes');
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// Verificar el origen de las peticiones que modifican información.
+const verificarOrigen = (req, res, next) => {
+    const metodosSeguros = ['GET', 'HEAD', 'OPTIONS'];
+
+    // Las peticiones que no modifican información continúan.
+    if (metodosSeguros.includes(req.method)) {
+        return next();
+    }
+
+    const origenPermitido =
+        process.env.FRONTEND_URL || 'http://localhost:9090';
+
+    const origenRecibido = req.get('origin');
+
+    // Rechazar peticiones sin un origen válido.
+    if (!origenRecibido || origenRecibido !== origenPermitido) {
+        return res.status(403).json({
+            success: false,
+            codigo: 'ORIGEN_NO_PERMITIDO',
+            mensaje: 'La solicitud proviene de un origen no autorizado.'
+        });
+    }
+
+    next();
+};
+
+// 1. Configuración de CORS.
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:9090',
+    credentials: true
+}));
+
+// 2. Middlewares generales.
 app.use(express.json());
+app.use(cookieParser());
+app.use(verificarOrigen);
 
-// Cargar contrato OpenAPI
-const swaggerPath = path.join(
-    __dirname,
-    '../swagger/openapi.yaml'
-);
+// 3. Rutas de autenticación.
+app.use('/api/v1/auth', authRoutes);
 
-const swaggerDocument = YAML.parse(
-    fs.readFileSync(swaggerPath, 'utf8')
-);
+// 4. Rutas de solicitudes de trabajadores.
+app.use('/api/v1/solicitudes-trabajador', solicitudesTrabajadorRoutes);
+// 5. Rutas administrativas.
+app.use('/api/v1/administrador', administradorRoutes);
 
-// Ruta principal
-app.get('/', (req, res) => {
+// 5. Ruta inicial.
+app.get('/api/v1/', (req, res) => {
     res.json({
-        mensaje: 'Bienvenido a ConectaLocal API',
-        estado: 'Servidor funcionando'
+        success: true,
+        message: 'API de ConectaLocal funcionando correctamente'
     });
 });
 
-// Documentación Swagger
-app.use(
-    '/api-docs',
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerDocument)
-);
+// 6. Ruta para probar la autenticación mediante cookie.
+app.get('/api/v1/test-auth', verificarToken, (req, res) => {
+    return res.status(200).json({
+        success: true,
+        mensaje: 'Sesión válida. Acceso autorizado.',
+        usuario: req.usuario
+    });
+});
 
-// Servidor
+// 7. Iniciar servidor.
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`ConectaLocal API ejecutándose en puerto ${PORT}`);
-    console.log(`Swagger: http://localhost:${PORT}/api-docs`);
+    console.log(`Servidor ConectaLocal activo en el puerto ${PORT}`);
 });

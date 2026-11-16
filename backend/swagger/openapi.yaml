@@ -124,7 +124,7 @@ paths:
         '429':
           $ref: '#/components/responses/DemasiadasSolicitudes'
 
-   #CIERRE SESIÓN       
+   #CIERRE SESIÓN
   /auth/logout:
     post:
       tags: [Autenticación]
@@ -229,7 +229,7 @@ paths:
         '404':
           $ref: '#/components/responses/NoEncontrado'
 
-  # CATEGORÍAS 
+  # CATEGORÍAS
   /categorias:
     get:
       tags: [Categorías]
@@ -547,7 +547,7 @@ paths:
         '400':
           $ref: '#/components/responses/SolicitudInvalida'
 
-  # SERVICIOS 
+  # SERVICIOS
   /negocios/{negocioId}/servicios:
     parameters:
       - $ref: '#/components/parameters/NegocioId'
@@ -642,7 +642,7 @@ paths:
         '404':
           $ref: '#/components/responses/NoEncontrado'
 
-  # RESEÑAS 
+  # RESEÑAS
   /negocios/{negocioId}/resenas:
     parameters:
       - $ref: '#/components/parameters/NegocioId'
@@ -745,7 +745,7 @@ paths:
         '404':
           $ref: '#/components/responses/NoEncontrado'
 
-  #  MENSAJERÍA 
+  #  MENSAJERÍA
   /conversaciones:
     get:
       tags: [Mensajería]
@@ -898,7 +898,7 @@ paths:
         '404':
           $ref: '#/components/responses/NoEncontrado'
 
-  # FORO 
+  # FORO
   /foro/publicaciones:
     get:
       tags: [Foro]
@@ -1202,7 +1202,7 @@ components:
                     example: Formato de correo inválido
     Rol:
       type: string
-      enum: [usuario, trabajador]
+      enum: [usuario, trabajador, administrador]
     Paginacion:
       type: object
       required: [pagina, limite, total]
@@ -1216,7 +1216,7 @@ components:
         total:
           type: integer
           example: 57
-
+#--------------------------------------------------------------------------------------------------------
     # ── Autenticación ──
     RegistroRequest:
       type: object

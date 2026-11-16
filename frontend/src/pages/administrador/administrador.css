@@ -1,0 +1,1001 @@
+
+/* =========================================
+   CONFIGURACIÓN GENERAL
+========================================= */
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f7fa;
+    color: #263445;
+    font-family: Arial, sans-serif;
+}
+
+.admin-layout * {
+    box-sizing: border-box;
+}
+
+/* =========================================
+   MENÚ LATERAL
+========================================= */
+
+.admin-sidebar {
+    width: 255px;
+    min-width: 255px;
+    background: #172d43;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 18px;
+}
+
+.admin-sidebar-marca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px 35px;
+}
+
+.admin-logo {
+    width: 43px;
+    height: 43px;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #172d43;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 17px;
+}
+
+.admin-sidebar-marca h2 {
+    font-size: 18px;
+    margin: 0 0 4px;
+}
+
+.admin-sidebar-marca span {
+    color: #b9c6d3;
+    font-size: 12px;
+}
+
+.admin-sidebar-etiqueta {
+    display: block;
+    color: #91a5b8;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    padding: 0 10px;
+    margin-bottom: 15px;
+}
+
+.admin-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 13px 12px;
+    border-radius: 9px;
+    text-decoration: none;
+    color: #c4cfda;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.admin-nav-link span {
+    font-size: 18px;
+}
+
+.admin-nav-link:hover {
+    background: #243e56;
+    color: #ffffff;
+}
+
+.admin-nav-link.activo {
+    background: #29445d;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.admin-sidebar-inferior {
+    margin-top: auto;
+    padding: 20px 5px 0;
+    border-top: 1px solid #33495e;
+}
+
+.admin-sidebar-perfil {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.admin-avatar {
+    width: 37px;
+    height: 37px;
+    border-radius: 50%;
+    background: #dce8f1;
+    color: #172d43;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.admin-sidebar-perfil div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-sidebar-perfil strong {
+    font-size: 12px;
+}
+
+.admin-sidebar-perfil span {
+    font-size: 10px;
+    color: #aebdcb;
+}
+
+/* =========================================
+   CONTENIDO PRINCIPAL
+========================================= */
+
+.admin-contenido {
+    flex: 1;
+    min-width: 0;
+    padding: 35px 40px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 27px;
+    border-bottom: 1px solid #e4e9ef;
+}
+
+.admin-header-subtitulo {
+    color: #7c8b9b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+}
+
+.admin-header h1 {
+    color: #20364c;
+    font-size: 27px;
+    margin: 10px 0 7px;
+}
+
+.admin-header p {
+    color: #8190a0;
+    font-size: 13px;
+    margin: 0;
+}
+
+.admin-header-acciones {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-rol {
+    padding: 9px 13px;
+    border-radius: 20px;
+    background: #e8eef4;
+    color: #344c63;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* =========================================
+   BIENVENIDA
+========================================= */
+
+.admin-bienvenida {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin: 28px 0 22px;
+}
+
+.admin-bienvenida h2,
+.admin-seccion-encabezado h2 {
+    color: #25394e;
+    font-size: 18px;
+    margin: 0 0 7px;
+}
+
+.admin-bienvenida p,
+.admin-seccion-encabezado p {
+    color: #8996a4;
+    font-size: 12px;
+    margin: 0;
+}
+
+.admin-boton-actualizar {
+    border: 1px solid #dce3ea;
+    background: #ffffff;
+    color: #344b61;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.admin-boton-actualizar:hover {
+    background: #edf2f7;
+}
+
+.admin-boton-actualizar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   TARJETAS DE ESTADÍSTICAS
+========================================= */
+
+.admin-estadisticas {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.admin-tarjeta {
+    background: #ffffff;
+    border: 1px solid #e8edf2;
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 0;
+    box-shadow: 0 3px 12px rgba(30, 50, 70, 0.03);
+}
+
+.admin-tarjeta-superior {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.admin-tarjeta-titulo {
+    color: #718092;
+    font-size: 11px;
+}
+
+.admin-tarjeta-icono {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.admin-tarjeta-cantidad {
+    display: block;
+    color: #25394e;
+    font-size: 30px;
+    margin: 17px 0 6px;
+}
+
+.admin-tarjeta-descripcion {
+    color: #9aa5b1;
+    font-size: 10px;
+}
+
+.admin-tarjeta.pendientes {
+    border-top: 3px solid #d9a441;
+}
+
+.admin-tarjeta.aprobadas {
+    border-top: 3px solid #399c78;
+}
+
+.admin-tarjeta.rechazadas {
+    border-top: 3px solid #d46d6d;
+}
+
+.admin-tarjeta.total {
+    border-top: 3px solid #6688ad;
+}
+
+/* =========================================
+   SOLICITUDES Y FILTROS
+========================================= */
+
+.admin-seccion-solicitudes {
+    background: #ffffff;
+    border: 1px solid #e8edf2;
+    border-radius: 12px;
+    margin-top: 28px;
+    padding: 23px;
+    box-shadow: 0 3px 12px rgba(30, 50, 70, 0.03);
+}
+
+.admin-seccion-encabezado {
+    margin-bottom: 20px;
+}
+
+.admin-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.admin-filtro {
+    border: 1px solid #e0e6ed;
+    background: #ffffff;
+    color: #728194;
+    border-radius: 7px;
+    padding: 9px 15px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.admin-filtro:hover {
+    background: #f3f6f9;
+}
+
+.admin-filtro.activo {
+    background: #203a53;
+    border-color: #203a53;
+    color: #ffffff;
+}
+
+/* =========================================
+   TABLA DE SOLICITUDES
+========================================= */
+
+.admin-tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: 850px;
+}
+
+.admin-tabla th {
+    background: #f7f9fb;
+    color: #8593a2;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 14px 12px;
+    white-space: nowrap;
+}
+
+.admin-tabla td {
+    border-bottom: 1px solid #edf0f4;
+    padding: 16px 12px;
+    color: #4d5e70;
+    font-size: 11px;
+}
+
+.admin-tabla tbody tr:hover {
+    background: #fafbfd;
+}
+
+.admin-solicitante {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.admin-solicitante strong {
+    color: #30465b;
+    font-size: 11px;
+}
+
+.admin-solicitante span {
+    color: #96a1ad;
+    font-size: 10px;
+}
+
+.admin-categoria {
+    white-space: nowrap;
+}
+
+.admin-estado {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.admin-estado.pendiente {
+    background: #fff3d9;
+    color: #a87819;
+}
+
+.admin-estado.aprobada {
+    background: #e0f3e9;
+    color: #32815d;
+}
+
+.admin-estado.rechazada {
+    background: #fae6e6;
+    color: #b44e4e;
+}
+
+.admin-boton-detalle {
+    background: #edf2f7;
+    border: none;
+    color: #344e67;
+    border-radius: 6px;
+    padding: 8px 11px;
+    font-size: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-boton-detalle:hover:not(:disabled) {
+    background: #dce6ef;
+}
+
+.admin-boton-detalle:disabled {
+    opacity: 0.65;
+    cursor: default;
+}
+
+/* =========================================
+   MENSAJES
+========================================= */
+
+.admin-tabla-vacia,
+.admin-mensaje {
+    padding: 45px 20px;
+    text-align: center;
+    color: #8794a2;
+}
+
+.admin-tabla-vacia > span {
+    font-size: 35px;
+}
+
+.admin-tabla-vacia h3 {
+    color: #40546a;
+    font-size: 15px;
+}
+
+.admin-tabla-vacia p {
+    font-size: 12px;
+}
+
+.admin-error {
+    padding: 20px;
+    background: #fff0f0;
+    border-radius: 8px;
+    color: #a94444;
+    font-size: 12px;
+}
+
+.admin-error button {
+    border: none;
+    background: #a94444;
+    color: #ffffff;
+    padding: 9px 13px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1100px) {
+    .admin-estadisticas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-contenido {
+        padding: 28px 22px;
+    }
+}
+
+@media (max-width: 700px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        min-width: 0;
+        padding: 18px;
+    }
+
+    .admin-sidebar-marca {
+        padding-bottom: 18px;
+    }
+
+    .admin-sidebar-inferior {
+        display: none;
+    }
+
+    .admin-sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .admin-nav-link {
+        flex: 1;
+        justify-content: center;
+        min-width: 130px;
+    }
+
+    .admin-contenido {
+        padding: 22px 15px;
+    }
+
+    .admin-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-header h1 {
+        font-size: 22px;
+    }
+
+    .admin-bienvenida {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-estadisticas {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .admin-tarjeta {
+        padding: 14px;
+    }
+
+    .admin-tarjeta-cantidad {
+        font-size: 25px;
+    }
+
+    .admin-seccion-solicitudes {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-estadisticas {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================
+   ACCIONES DE REVISIÓN DE SOLICITUDES
+========================================= */
+
+.admin-acciones-solicitud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid #e4e9ef;
+}
+
+.admin-boton-aprobar,
+.admin-boton-rechazar {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, opacity 0.2s;
+}
+
+.admin-boton-aprobar {
+    background: #32815d;
+    color: #ffffff;
+}
+
+.admin-boton-aprobar:hover:not(:disabled) {
+    background: #276b4c;
+    transform: translateY(-1px);
+}
+
+.admin-boton-rechazar {
+    background: #b44e4e;
+    color: #ffffff;
+}
+
+.admin-boton-rechazar:hover:not(:disabled) {
+    background: #963d3d;
+    transform: translateY(-1px);
+}
+
+.admin-boton-aprobar:disabled,
+.admin-boton-rechazar:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* =========================================
+   FORMULARIO DE RECHAZO
+========================================= */
+
+.admin-rechazo-form {
+    width: 100%;
+    max-width: 650px;
+    margin-top: 18px;
+    padding: 20px;
+    background: #f7f9fb;
+    border: 1px solid #e1e7ed;
+    border-radius: 10px;
+}
+
+.admin-rechazo-form label {
+    display: block;
+    margin-bottom: 10px;
+    color: #30465b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-rechazo-form textarea {
+    display: block;
+    width: 100%;
+    min-height: 115px;
+    padding: 12px;
+    border: 1px solid #d6dfe8;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #344b61;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+}
+
+.admin-rechazo-form textarea:focus {
+    border-color: #6688ad;
+    box-shadow: 0 0 0 3px rgba(102, 136, 173, 0.12);
+}
+
+.admin-rechazo-form textarea:disabled {
+    background: #edf0f3;
+    cursor: not-allowed;
+}
+
+.admin-rechazo-form p {
+    margin: 7px 0 15px;
+    color: #8794a2;
+    font-size: 10px;
+    text-align: right;
+}
+
+.admin-rechazo-form > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.admin-rechazo-form button {
+    border: none;
+    border-radius: 7px;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-rechazo-form button[type="submit"] {
+    background: #b44e4e;
+    color: #ffffff;
+}
+
+.admin-rechazo-form button[type="button"] {
+    background: #e5eaf0;
+    color: #40546a;
+}
+
+.admin-rechazo-form button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   MENSAJES DE OPERACIÓN
+========================================= */
+
+.admin-mensaje-exito {
+    margin-top: 18px;
+    padding: 13px 16px;
+    border: 1px solid #c8e5d5;
+    border-radius: 8px;
+    background: #e8f5ed;
+    color: #28734e;
+    font-size: 12px;
+}
+
+.admin-mensaje-error {
+    margin-top: 18px;
+    padding: 13px 16px;
+    border: 1px solid #f0cccc;
+    border-radius: 8px;
+    background: #fff0f0;
+    color: #a94444;
+    font-size: 12px;
+}
+
+/* =========================================
+   RESPONSIVE - ACCIONES
+========================================= */
+
+@media (max-width: 700px) {
+    .admin-acciones-solicitud {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-boton-aprobar,
+    .admin-boton-rechazar {
+        width: 100%;
+    }
+
+    .admin-rechazo-form {
+        padding: 15px;
+    }
+
+    .admin-rechazo-form > div {
+        flex-direction: column;
+    }
+
+    .admin-rechazo-form button {
+        width: 100%;
+    }
+}
+
+
+
+/* =========================================
+   DETALLE DE SOLICITUD
+========================================= */
+
+.admin-detalle {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.admin-detalle .admin-header {
+    margin-bottom: 20px;
+}
+
+.admin-volver {
+    margin-bottom: 22px;
+}
+
+.admin-detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.admin-detalle-card {
+    min-width: 0;
+    padding: 23px;
+    background: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(30, 50, 70, 0.035);
+}
+
+.admin-card-titulo {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding-bottom: 18px;
+    margin-bottom: 17px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.admin-card-icono {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #edf2f7;
+    font-size: 19px;
+}
+
+.admin-card-titulo h2 {
+    color: #263d53;
+    font-size: 15px;
+    margin: 0 0 5px;
+}
+
+.admin-card-titulo p {
+    color: #8996a4;
+    font-size: 11px;
+    margin: 0;
+}
+
+.admin-dato {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.admin-dato:last-child {
+    border-bottom: none;
+}
+
+.admin-dato > span {
+    color: #8a97a5;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.admin-dato > strong,
+.admin-dato > p {
+    color: #344b61;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    margin: 0;
+}
+
+.admin-dato > a,
+.admin-mapa-link {
+    color: #416f9c;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-dato > a:hover,
+.admin-mapa-link:hover {
+    text-decoration: underline;
+}
+
+.admin-mapa-link {
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.admin-fotos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 13px;
+}
+
+.admin-foto-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #526579;
+    text-decoration: none;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+
+.admin-foto-item img {
+    display: block;
+    width: 100%;
+    height: 145px;
+    object-fit: cover;
+    border-radius: 9px;
+    background: #edf1f5;
+    transition: transform 0.2s;
+}
+
+.admin-foto-item:hover img {
+    transform: scale(1.025);
+}
+
+.admin-sin-fotos {
+    color: #8996a4;
+    font-size: 12px;
+}
+
+.admin-estado-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.admin-estado-grande {
+    margin: 10px 0;
+    font-size: 12px;
+    padding: 9px 15px;
+}
+
+.admin-motivo-guardado {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px;
+    background: #fff7f7;
+    border: 1px solid #f1dddd;
+    border-radius: 8px;
+}
+
+.admin-revision-panel {
+    margin-top: 22px;
+    padding: 25px;
+    background: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-left: 4px solid #294c6b;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(30, 50, 70, 0.035);
+}
+
+.admin-revision-panel h2 {
+    margin: 9px 0 7px;
+    color: #263d53;
+    font-size: 19px;
+}
+
+.admin-revision-panel > div:first-child > p {
+    color: #8996a4;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.admin-revision-panel .admin-acciones-solicitud {
+    margin-top: 20px;
+}
+
+.admin-revision-panel .admin-rechazo-form {
+    max-width: none;
+    margin-top: 20px;
+}
+
+.admin-mensaje-exito,
+.admin-mensaje-error {
+    margin-bottom: 17px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+    .admin-detalle-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .admin-detalle-card,
+    .admin-revision-panel {
+        padding: 17px;
+    }
+
+    .admin-card-titulo {
+        align-items: flex-start;
+    }
+
+    .admin-fotos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-foto-item img {
+        height: 125px;
+    }
+}

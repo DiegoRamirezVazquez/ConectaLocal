@@ -1,0 +1,157 @@
+.cc {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  max-width: 440px;
+}
+
+/* ---------- Vista y diapositivas ---------- */
+.cc-vista {
+  position: relative;
+  min-height: 440px;
+}
+
+.cc-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
+}
+
+.cc-slide.activa {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.cc-slide h2 {
+  margin: 14px 0 0;
+  font-family: "Bricolage Grotesque", "Segoe UI", sans-serif;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cc-slide p {
+  margin: 0;
+  max-width: 38ch;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #c9e3de;
+}
+
+/* ---------- Contenedor común de ilustraciones ---------- */
+.cc-escena {
+  position: relative;
+  height: 250px;
+  border-radius: 22px;
+  background: #f6faf8;
+  box-shadow: 0 18px 40px rgba(4, 28, 31, 0.35);
+  overflow: hidden;
+  color: #12262a;
+}
+
+/* ---------- Escena 1: mapa ---------- */
+.cc-mapa { background: #e6f1ec; }
+
+.cc-calle { position: absolute; background: #fff; }
+.cc-calle-h { left: 0; right: 0; top: 98px; height: 22px; transform: rotate(-4deg); }
+.cc-calle-v { top: 0; bottom: 0; left: 150px; width: 20px; transform: rotate(6deg); }
+.cc-parque {
+  position: absolute; right: 24px; bottom: 22px;
+  width: 110px; height: 70px; border-radius: 18px; background: #cfe6d6;
+}
+
+.cc-pin { position: absolute; color: #c2306b; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25)); }
+.cc-pin-a { top: 54px; left: 96px; }
+.cc-pin-b { top: 128px; left: 214px; color: #0e4d52; }
+.cc-pin-c { top: 40px; right: 64px; color: #e59a12; }
+
+.cc-chip {
+  position: absolute; left: 18px; bottom: 18px;
+  padding: 8px 14px; border-radius: 999px;
+  background: #fff; font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Escena 2: chat ---------- */
+.cc-chat {
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 12px; padding: 22px;
+}
+
+.cc-burbuja {
+  margin: 0 !important;
+  max-width: 78%;
+  padding: 11px 15px;
+  border-radius: 18px;
+  font-size: 0.92rem !important;
+  line-height: 1.4 !important;
+}
+
+.cc-slide .cc-burbuja-in { align-self: flex-start; background: #e3ece9; color: #12262a; border-bottom-left-radius: 5px; }
+.cc-slide .cc-burbuja-out { align-self: flex-end; background: #0e4d52; color: #fff; border-bottom-right-radius: 5px; }
+
+/* ---------- Escena 3: reseña ---------- */
+.cc-resena { padding: 24px; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+.cc-resena-cabecera { display: flex; align-items: center; gap: 12px; }
+.cc-avatar {
+  display: grid; place-items: center; width: 46px; height: 46px;
+  border-radius: 50%; background: #f5b83d; font-weight: 700; font-size: 1.1rem;
+}
+.cc-estrellas { display: flex; gap: 2px; margin-top: 4px; color: #e59a12; }
+.cc-slide .cc-resena > p { color: #3a4d51; font-size: 0.98rem; }
+
+/* ---------- Escena 4: negocio ---------- */
+.cc-negocio { display: flex; flex-direction: column; background: #fff; }
+.cc-toldo {
+  height: 56px;
+  background: repeating-linear-gradient(90deg, #0e4d52 0 36px, #f5b83d 36px 72px);
+  border-radius: 0 0 18px 18px;
+}
+.cc-negocio-cuerpo {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 6px; text-align: center; padding: 0 20px; color: #0e4d52;
+}
+.cc-negocio-cuerpo strong { font-size: 1.15rem; color: #12262a; }
+.cc-negocio-cuerpo span { font-size: 0.9rem; color: #4a5f63; }
+
+/* ---------- Controles ---------- */
+.cc-controles { display: flex; align-items: center; justify-content: center; }
+.cc-puntos { display: flex; gap: 10px; }
+
+.cc-punto {
+  width: 10px; height: 10px; padding: 0; border: 0; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35); cursor: pointer;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.cc-punto.activo { width: 30px; background: #f5b83d; }
+
+.cc-punto:focus-visible { outline: 3px solid #f5b83d; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-slide, .cc-punto { transition: none; }
+}
+
+.cc-imagen {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .cc-imagen {
+    height: 180px;
+  }
+}

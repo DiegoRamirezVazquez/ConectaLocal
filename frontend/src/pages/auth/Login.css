@@ -1,0 +1,204 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Figtree:wght@400;500;600&display=swap");
+
+.cl-login {
+  --teal: #0e4d52;
+  --teal-oscuro: #0a3a3e;
+  --oro: #f5b83d;
+  --tinta: #12262a;
+  --suave: #4a5f63;
+  --borde: #c9d6d3;
+  --fondo: #f5f8f7;
+  --error: #b3261e;
+
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 32px 20px;
+  box-sizing: border-box;
+  font-family: "Figtree", "Segoe UI", system-ui, sans-serif;
+  color: var(--tinta);
+  background: radial-gradient(circle at 50% 0%, #17727a 0%, #0a3a3e 45%, #061f22 100%);
+}
+
+/* Tarjeta centrada: carrusel a la izquierda, formulario a la derecha */
+.cl-tarjeta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  width: 100%;
+  max-width: 1000px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Panel del carrusel ---------- */
+.cl-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 36px 40px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 56px),
+    var(--teal);
+  color: #fff;
+}
+
+.cl-panel .cc { margin: auto 0; }
+
+.cl-panel-pie {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #a9cdc7;
+}
+
+/* ---------- Marca ---------- */
+.cl-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Bricolage Grotesque", "Segoe UI", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  align-self: flex-start;
+}
+
+.cl-logo {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--oro);
+  color: var(--teal-oscuro);
+}
+
+.cl-marca-claro { color: #fff; }
+.cl-marca-movil { display: none; color: var(--teal); margin-bottom: 28px; }
+
+/* ---------- Formulario ---------- */
+.cl-form-lado {
+  display: grid;
+  place-items: center;
+  padding: 40px 32px;
+  background: #fff;
+}
+
+.cl-form-caja { width: 100%; max-width: 400px; }
+
+.cl-encabezado h1 {
+  margin: 0 0 8px;
+  font-family: "Bricolage Grotesque", "Segoe UI", sans-serif;
+  font-size: 2rem;
+  line-height: 1.15;
+  color: var(--teal-oscuro);
+}
+
+.cl-encabezado p {
+  margin: 0 0 28px;
+  color: var(--suave);
+  line-height: 1.5;
+}
+
+.cl-error {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--error);
+  border-radius: 8px;
+  background: #fbeceb;
+  color: var(--error);
+  font-size: 0.93rem;
+}
+
+.cl-campo { margin-bottom: 18px; }
+
+.cl-campo label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.cl-campo input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  padding: 0 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+  color: var(--tinta);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cl-campo input::placeholder { color: #8a9a9d; }
+
+.cl-campo input:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 4px rgba(14, 77, 82, 0.15);
+}
+
+.cl-password { position: relative; }
+.cl-password input { padding-right: 52px; }
+
+.cl-ojo {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--suave);
+  cursor: pointer;
+}
+
+.cl-ojo:hover { background: #eaf0ee; }
+.cl-ojo:focus-visible { outline: 3px solid var(--oro); }
+
+.cl-boton {
+  width: 100%;
+  height: 50px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--teal);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cl-boton:hover:not(:disabled) { background: var(--teal-oscuro); }
+.cl-boton:focus-visible { outline: 3px solid var(--oro); outline-offset: 3px; }
+.cl-boton:disabled { opacity: 0.65; cursor: wait; }
+
+.cl-pie {
+  margin: 24px 0 0;
+  text-align: center;
+  color: var(--suave);
+}
+
+.cl-pie a {
+  color: var(--teal);
+  font-weight: 600;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+  .cl-tarjeta { grid-template-columns: 1fr; max-width: 460px; }
+  .cl-panel { display: none; }
+  .cl-marca-movil { display: flex; }
+}

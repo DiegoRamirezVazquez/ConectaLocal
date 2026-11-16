@@ -1,0 +1,271 @@
+
+.gn-contenedor {
+  min-height: 100vh;
+  padding: 35px;
+  background: #f5f8f7;
+  color: #183b38;
+}
+
+.gn-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: none;
+  background: transparent;
+  color: #176e65;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 28px;
+}
+
+.gn-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.gn-etiqueta {
+  color: #16877a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.gn-encabezado h1 {
+  font-size: 30px;
+  margin: 8px 0;
+}
+
+.gn-encabezado p,
+.gn-seccion-titulo p {
+  color: #738481;
+  margin: 0;
+}
+
+.gn-icono {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  background: #e0f2ed;
+  color: #16796e;
+  border-radius: 15px;
+}
+
+.gn-principal,
+.gn-galeria {
+  background: white;
+  border: 1px solid #e5eeeb;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.gn-seccion-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.gn-seccion-titulo h2 {
+  font-size: 19px;
+  margin: 0 0 7px;
+}
+
+.gn-foto-principal {
+  height: 260px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #edf3f1;
+}
+
+.gn-foto-principal img,
+.gn-foto-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gn-sin-foto,
+.gn-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #84938f;
+}
+
+.gn-sin-foto {
+  height: 100%;
+}
+
+.gn-contador {
+  background: #e0f2ed;
+  color: #16796e;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.gn-carga {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  color: #738481;
+  font-size: 13px;
+}
+
+.gn-seleccionar,
+.gn-subir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 17px;
+  border-radius: 9px;
+  background: #176e65;
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.gn-seleccionar:hover,
+.gn-subir:hover {
+  background: #10584f;
+}
+
+.gn-archivos-pendientes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  background: #f0f8f5;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.gn-archivos-pendientes p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.gn-subir:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.gn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.gn-foto-card {
+  overflow: hidden;
+  border: 1px solid #e5eeeb;
+  border-radius: 12px;
+  background: white;
+}
+
+.gn-foto-card img {
+  height: 190px;
+  display: block;
+}
+
+.gn-foto-info {
+  padding: 13px;
+}
+
+.gn-foto-info p {
+  font-size: 13px;
+  color: #657772;
+  margin: 0 0 12px;
+}
+
+.gn-eliminar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #c34b4b;
+  background: #fff1f1;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.gn-eliminar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.gn-vacio {
+  min-height: 220px;
+  background: #f8faf9;
+  border-radius: 12px;
+  text-align: center;
+  padding: 25px;
+}
+
+.gn-vacio h3 {
+  margin: 0;
+  color: #294c46;
+}
+
+.gn-vacio p {
+  margin: 0;
+  color: #84938f;
+  font-size: 14px;
+}
+
+.gn-cargando {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  color: #176e65;
+}
+
+.gn-spinner {
+  animation: gn-girar 1s linear infinite;
+}
+
+@keyframes gn-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gn-error {
+  color: #c34b4b;
+}
+
+@media (max-width: 650px) {
+  .gn-contenedor {
+    padding: 20px;
+  }
+
+  .gn-encabezado h1 {
+    font-size: 23px;
+  }
+
+  .gn-foto-principal {
+    height: 200px;
+  }
+
+  .gn-grid {
+    grid-template-columns: 1fr;
+  }
+}

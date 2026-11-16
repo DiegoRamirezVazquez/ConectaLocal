@@ -8,6 +8,8 @@ const authRoutes = require('./routes/authRoutes');
 const solicitudesTrabajadorRoutes = require('./routes/solicitudesTrabajadorRoutes');
 const { verificarToken } = require('./middlewares/authMiddleware');
 const administradorRoutes = require('./routes/administradorRoutes');
+const negociosRoutes = require('./routes/negociosRoutes');
+const fotosNegocioRoutes = require('./routes/fotosNegocioRoutes');
 
 const app = express();
 
@@ -55,8 +57,12 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/solicitudes-trabajador', solicitudesTrabajadorRoutes);
 // 5. Rutas administrativas.
 app.use('/api/v1/administrador', administradorRoutes);
+// 6. Rutas de negocios del trabajador.
+app.use('/api/v1/negocios', negociosRoutes);
+// 7. Rutas de fotos del negocio.
+app.use('/api/v1/negocios', fotosNegocioRoutes);
 
-// 5. Ruta inicial.
+// Ruta inicial.
 app.get('/api/v1/', (req, res) => {
     res.json({
         success: true,

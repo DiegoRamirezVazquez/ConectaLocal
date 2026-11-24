@@ -318,7 +318,7 @@ const login = async (req, res) => {
         res.cookie('app_session', nuevaSesion.identificador, {
             httpOnly: true,
             secure: esProduccion,
-            sameSite: 'lax',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/',
             maxAge: tiempoRestante
         });
@@ -444,7 +444,7 @@ const logout = async (req, res) => {
         res.clearCookie('app_session', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/'
         });
 

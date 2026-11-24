@@ -1,0 +1,673 @@
+.foro-publicacion {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  background: #fff;
+  border: 1px solid #e8edf2;
+  border-radius: 16px;
+  box-shadow: 0 3px 14px rgba(24, 48, 75, 0.055);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.foro-publicacion:hover {
+  box-shadow: 0 7px 22px rgba(24, 48, 75, 0.09);
+}
+
+.foro-publicacion-autor {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.foro-publicacion-autor .foro-avatar,
+.foro-reaccion-persona .foro-avatar,
+.foro-comentario > .foro-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.foro-publicacion-autor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.foro-publicacion-autor-info strong {
+  color: #243447;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.foro-publicacion-autor-info span,
+.foro-comentario-cabecera span {
+  color: #8995a3;
+  font-size: 11px;
+}
+
+.foro-etiqueta-tipo {
+  align-self: flex-start;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #eef2ff;
+  color: #5267a9;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.foro-publicacion > h3 {
+  margin: 0;
+  color: #1e2d3d;
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.foro-publicacion-texto {
+  margin: -3px 0 2px;
+  color: #536273;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.foro-galeria-fotografias {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 9px;
+  margin: 3px 0;
+}
+
+.foro-fotografia-publicada {
+  width: 100%;
+  max-height: 260px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 11px;
+  cursor: pointer;
+}
+
+/* Barra de acciones */
+.foro-publicacion-acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-top: 10px;
+  border-top: 1px solid #edf0f3;
+}
+
+.foro-publicacion-acciones .foro-accion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #667587;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease;
+}
+
+.foro-publicacion-acciones .foro-accion:hover {
+  background: #f2f5f8;
+  color: #29445f;
+}
+
+.foro-publicacion-acciones .foro-accion.activa {
+  background: #fff0f2;
+  color: #d94b63;
+}
+
+.foro-publicacion-acciones .foro-accion:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.foro-menu-contenedor {
+  position: relative;
+  margin-left: auto;
+}
+
+.foro-publicacion-acciones .foro-menu-boton {
+  width: 36px;
+  min-width: 36px;
+  padding: 0;
+  font-size: 21px;
+  letter-spacing: 1px;
+}
+
+.foro-menu-opciones {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 5px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #e7ebf0;
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(24, 48, 75, .15);
+}
+
+.foro-menu-opciones button,
+.foro-comentario-acciones button,
+.foro-comentario-edicion button {
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #405267;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.foro-menu-opciones button:hover,
+.foro-comentario-acciones button:hover,
+.foro-comentario-edicion button:hover {
+  background: #f1f5f9;
+  color: #245b91;
+}
+
+/* Personas que reaccionaron */
+.foro-lista-reacciones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 15px;
+  background: #f8fafc;
+  border: 1px solid #edf1f5;
+  border-radius: 12px;
+}
+
+.foro-lista-reacciones > strong {
+  color: #34465a;
+  font-size: 13px;
+}
+
+.foro-reaccion-persona {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #536273;
+  font-size: 12px;
+}
+
+/* Comentarios */
+.foro-comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 15px;
+  background: #f8fafc;
+  border: 1px solid #edf1f5;
+  border-radius: 13px;
+}
+
+.foro-comentarios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.foro-comentario {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.foro-comentario > .foro-avatar {
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+}
+
+.foro-comentario-cuerpo {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #edf0f3;
+  border-radius: 0 12px 12px 12px;
+}
+
+.foro-comentario-cabecera {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.foro-comentario-cabecera strong {
+  color: #34465a;
+  font-size: 12px;
+}
+
+.foro-comentario-cuerpo > p {
+  margin: 0;
+  color: #586779;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.foro-comentario-acciones {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.foro-comentario-acciones button {
+  padding: 5px 8px;
+  color: #718096;
+  font-size: 11px;
+}
+
+.foro-formulario-comentario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 11px;
+  border-top: 1px solid #e8edf2;
+}
+
+.foro-formulario-comentario input {
+  flex: 1;
+  min-width: 0;
+  height: 39px;
+  padding: 0 13px;
+  border: 1px solid #dfe6ed;
+  border-radius: 20px;
+  outline: none;
+  background: #fff;
+  color: #34465a;
+  font: inherit;
+  font-size: 12px;
+}
+
+.foro-formulario-comentario input:focus,
+.foro-comentario-edicion textarea:focus,
+.foro-modal-reporte textarea:focus,
+.foro-modal-reporte select:focus {
+  border-color: #86a9cc;
+  box-shadow: 0 0 0 3px rgba(75, 126, 178, .12);
+}
+
+.foro-formulario-comentario button,
+.foro-comentario-edicion button:first-of-type {
+  min-height: 37px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 20px;
+  background: #315f89;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s ease;
+}
+
+.foro-formulario-comentario button:hover,
+.foro-comentario-edicion button:first-of-type:hover {
+  background: #244b70;
+}
+
+.foro-formulario-comentario button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.foro-sin-comentarios {
+  margin: 0;
+  color: #8793a1;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Edición y reporte */
+.foro-edicion-publicacion,
+.foro-modal-reporte {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e7edf3;
+  border-radius: 13px;
+}
+
+.foro-modal-reporte h4 {
+  margin: 0 0 2px;
+  color: #2d4055;
+  font-size: 15px;
+}
+
+.foro-modal-reporte label {
+  color: #526273;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.foro-modal-reporte select,
+.foro-modal-reporte textarea,
+.foro-comentario-edicion textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #dfe6ed;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: #34465a;
+  font: inherit;
+  font-size: 12px;
+}
+
+.foro-modal-reporte textarea,
+.foro-comentario-edicion textarea {
+  min-height: 85px;
+  resize: vertical;
+}
+
+.foro-comentario-edicion {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.foro-comentario-edicion button {
+  align-self: flex-start;
+}
+
+.foro-formulario-opciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.foro-formulario-opciones .foro-accion {
+  min-height: 36px;
+  padding: 8px 13px;
+  border: 1px solid #dfe6ed;
+  border-radius: 9px;
+  background: #fff;
+  color: #647386;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.foro-formulario-opciones .foro-boton-publicar {
+  min-height: 36px;
+  padding: 8px 15px;
+  border: 0;
+  border-radius: 9px;
+  background: #315f89;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.foro-formulario-opciones .foro-boton-publicar:hover {
+  background: #244b70;
+}
+
+/* Móvil */
+@media (max-width: 600px) {
+  .foro-publicacion {
+    padding: 15px;
+    border-radius: 13px;
+  }
+
+  .foro-publicacion-acciones {
+    gap: 3px;
+  }
+
+  .foro-publicacion-acciones .foro-accion {
+    padding: 7px 8px;
+    font-size: 11px;
+  }
+
+  .foro-comentarios {
+    padding: 11px;
+  }
+
+  .foro-formulario-comentario {
+    align-items: stretch;
+  }
+
+  .foro-formulario-comentario button {
+    padding: 0 12px;
+  }
+}
+
+
+
+/* =========================================================
+   AJUSTE DEL COMPOSITOR: distribución solicitada
+   Encabezado / título + tipo / contenido / fotos + publicar
+   ========================================================= */
+
+.foro-formulario {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "encabezado encabezado"
+    "titulo tipo"
+    "contenido contenido"
+    "fotografias publicar";
+  align-items: start;
+  column-gap: 14px;
+  row-gap: 14px;
+  padding: 18px;
+  border: 1px solid #e3eae8;
+  border-radius: 16px;
+  background: #f8fbfa;
+}
+
+.foro-formulario-superior {
+  grid-area: encabezado;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e7eeeb;
+}
+
+.foro-campo-titulo {
+  grid-area: titulo;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #dce6e2;
+  border-radius: 12px;
+  background: #fff;
+  color: #294052;
+  font: inherit;
+  font-size: 14px;
+}
+
+.foro-formulario-opciones {
+  display: contents;
+}
+
+.foro-selector-tipo {
+  grid-area: tipo;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1px solid #dce6e2;
+  border-radius: 12px;
+  background: #fff;
+  color: #294052;
+  font: inherit;
+  font-size: 14px;
+}
+
+.foro-campo-contenido {
+  grid-area: contenido;
+  width: 100%;
+  min-height: 150px;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid #dce6e2;
+  border-radius: 12px;
+  background: #fff;
+  color: #294052;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.foro-fotografias {
+  grid-area: fotografias;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  min-width: 0;
+}
+
+.foro-boton-fotografias {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border: 1px solid #dce6e2;
+  border-radius: 12px;
+  background: #f3f8f5;
+  color: #245b52;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.foro-boton-fotografias:hover {
+  background: #eaf3ee;
+  border-color: #c7d9d0;
+}
+
+.foro-fotografias > span {
+  color: #718176;
+  font-size: 12px;
+}
+
+.foro-formulario-opciones .foro-boton-publicar {
+  grid-area: publicar;
+  justify-self: end;
+  align-self: start;
+  min-width: 145px;
+  min-height: 46px;
+  padding: 10px 22px;
+  border: 0;
+  border-radius: 12px;
+  background: #315f89;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s ease, transform .18s ease;
+}
+
+.foro-formulario-opciones .foro-boton-publicar:hover {
+  background: #244b70;
+  transform: translateY(-1px);
+}
+
+.foro-formulario-opciones .foro-boton-publicar:disabled {
+  opacity: .65;
+  cursor: wait;
+  transform: none;
+}
+
+/* Evita que reglas anteriores cambien el orden visual del formulario. */
+.foro-formulario .foro-error,
+.foro-formulario .foro-exito {
+  grid-column: 1 / -1;
+}
+
+/* En pantallas estrechas, título y tipo se apilan para no comprimirlos. */
+@media (max-width: 560px) {
+  .foro-formulario {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "encabezado"
+      "titulo"
+      "tipo"
+      "contenido"
+      "fotografias"
+      "publicar";
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .foro-formulario-opciones .foro-boton-publicar {
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .foro-fotografias {
+    width: 100%;
+  }
+}
+
+
+/* Avisos temporales del foro */
+.foro-aviso-temporal {
+  animation: foroAvisoDesaparecer 5s ease both;
+}
+
+.foro-exito.foro-aviso-temporal {
+  animation-duration: 4s;
+}
+
+@keyframes foroAvisoDesaparecer {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  10%, 80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}

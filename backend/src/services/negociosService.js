@@ -58,6 +58,89 @@ const obtenerNegociosPropios = async (perfilId) => {
     return data || [];
 };
 
+
+// CONSULTAR EL PERFIL PÚBLICO DE UN NEGOCIO.
+const obtenerNegocioPublico = async (negocioId) => {
+    const { data, error } = await supabaseAdmin
+        .from('negocios')
+        .select(`
+            id,
+            categoria_id,
+            nombre,
+            descripcion,
+            lat,
+            lng,
+            direccion,
+            telefono,
+            whatsapp,
+            email,
+            sitio_web,
+            horario,
+            foto_principal_url,
+            creado_en,
+            categoria:categorias (
+                id,
+                nombre,
+                icono
+            )
+        `)
+        .eq('id', negocioId)
+        .maybeSingle();
+
+    if (error) {
+        console.error(
+            'Error al consultar perfil público del negocio:',
+            error.message
+        );
+
+        throw new Error(
+            'No fue posible consultar el perfil del negocio.'
+        );
+    }
+
+    return data;
+};
+
+
+// CONSULTAR TODOS LOS NEGOCIOS DISPONIBLES PARA EL DIRECTORIO PÚBLICO.
+const obtenerNegociosPublicos = async () => {
+    const { data, error } = await supabaseAdmin
+        .from('negocios')
+        .select(`
+            id,
+            nombre,
+            descripcion,
+            categoria_id,
+            lat,
+            lng,
+            direccion,
+            foto_principal_url,
+            creado_en,
+            categoria:categorias (
+                id,
+                nombre,
+                icono
+            )
+        `)
+        .order('creado_en', { ascending: false });
+
+    if (error) {
+        console.error(
+            'Error al consultar directorio público:',
+            error.message
+        );
+
+        throw new Error(
+            'No fue posible consultar los negocios disponibles.'
+        );
+    }
+
+    return data || [];
+};
+
+
+
+
 // OBTENER LA RUTA DE UNA FOTOGRAFÍA PÚBLICA DEL BUCKET.
 const obtenerRutaFotoAnterior = (urlFoto) => {
     if (!urlFoto) return null;
@@ -229,5 +312,7 @@ const actualizarFotoPrincipalNegocio = async (
 
 module.exports = {
     obtenerNegociosPropios,
+    obtenerNegocioPublico,
+    obtenerNegociosPublicos,
     actualizarFotoPrincipalNegocio
 };

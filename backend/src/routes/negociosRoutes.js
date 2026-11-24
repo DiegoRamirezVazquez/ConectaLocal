@@ -5,7 +5,9 @@ const router = express.Router();
 // Controladores de negocios.
 const {
     consultarMisNegocios,
-    actualizarFotoPrincipal
+    consultarNegocioPublico,
+    actualizarFotoPrincipal,
+    consultarDirectorioPublico
 } = require('../controllers/negociosController');
 
 // Middleware de autenticación.
@@ -17,6 +19,7 @@ const {
 const {
     subirFotoNegocio
 } = require('../middlewares/subirFotosNegocio');
+
 
 // CONSULTAR NEGOCIOS DEL TRABAJADOR.
 router.get(
@@ -31,6 +34,16 @@ router.patch(
     verificarToken,
     subirFotoNegocio,
     actualizarFotoPrincipal
+);
+
+router.get(
+    '/publico/:negocioId',
+    consultarNegocioPublico
+);
+
+router.get(
+    '/publicos',
+    consultarDirectorioPublico
 );
 
 module.exports = router;

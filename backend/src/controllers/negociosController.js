@@ -1,7 +1,9 @@
 
 const {
     obtenerNegociosPropios,
-    actualizarFotoPrincipalNegocio
+    obtenerNegocioPublico,
+    actualizarFotoPrincipalNegocio,
+    obtenerNegociosPublicos
 } = require('../services/negociosService');
 
 // CONSULTAR NEGOCIOS DEL TRABAJADOR AUTENTICADO.
@@ -78,7 +80,71 @@ const actualizarFotoPrincipal = async (req, res) => {
     }
 };
 
+
+
+// CONSULTAR EL PERFIL PÚBLICO DE UN NEGOCIO.
+const consultarNegocioPublico = async (req, res) => {
+    try {
+        const { negocioId } = req.params;
+
+        const negocio = await obtenerNegocioPublico(negocioId);
+
+        if (!negocio) {
+            return res.status(404).json({
+                success: false,
+                codigo: 'NEGOCIO_NO_ENCONTRADO',
+                mensaje: 'No se encontró el negocio solicitado.'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            mensaje: 'Perfil del negocio consultado correctamente.',
+            negocio
+        });
+
+    } catch (error) {
+        console.error('Error al consultar perfil público:', error);
+
+        return res.status(500).json({
+            success: false,
+            codigo: 'ERROR_CONSULTAR_NEGOCIO',
+            mensaje: 'No fue posible consultar el perfil del negocio.'
+        });
+    }
+};
+
+
+// CONSULTAR EL DIRECTORIO PÚBLICO DE NEGOCIOS.
+const consultarDirectorioPublico = async (req, res) => {
+    try {
+        const negocios = await obtenerNegociosPublicos();
+
+        return res.status(200).json({
+            success: true,
+            mensaje: 'Directorio consultado correctamente.',
+            total: negocios.length,
+            negocios
+        });
+
+    } catch (error) {
+        console.error(
+            'Error al consultar directorio público:',
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            codigo: 'ERROR_DIRECTORIO_PUBLICO',
+            mensaje: 'No fue posible consultar los negocios.'
+        });
+    }
+};
+
+
 module.exports = {
     consultarMisNegocios,
-    actualizarFotoPrincipal
+    actualizarFotoPrincipal,
+    consultarNegocioPublico,
+    consultarDirectorioPublico
 };

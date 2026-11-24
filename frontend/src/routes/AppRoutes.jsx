@@ -3,13 +3,17 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 import Register from '../pages/auth/Register';
-import LogoutButton from '../components/common/LogoutButton';
 import Login from '../pages/auth/Login';
+
 import TrabajadorDashboard from '../pages/trabajador/TrabajadorDashboard';
 import RegistrarActividad from '../pages/trabajador/RegistrarActividad';
+import GaleriaNegocio from '../pages/trabajador/GaleriaNegocio';
+
 import AdministradorDashboard from '../pages/administrador/AdministradorDashboard';
 import DetalleSolicitud from '../pages/administrador/DetalleSolicitud';
-import GaleriaNegocio from '../pages/trabajador/GaleriaNegocio';
+
+import InicioUsuario from '../pages/usuario/InicioUsuario';
+import UsuarioLayout from '../components/usuario/UsuarioLayout';
 
 const getHomePath = (user) => {
     switch (user?.rol) {
@@ -46,13 +50,14 @@ const AppRoutes = () => {
 
     const homePath = getHomePath(user);
 
-    // Esperar a que el backend verifique la sesión.
     if (loading) {
         return <div>Verificando sesión...</div>;
     }
 
     return (
         <Routes>
+            {/* AUTENTICACIÓN */}
+
             <Route
                 path="/login"
                 element={
@@ -71,15 +76,43 @@ const AppRoutes = () => {
                 }
             />
 
+            {/* MÓDULO DE USUARIO */}
+
             <Route
-                path="/inicio"
+                path="/"
                 element={
                     <ProtectedRoute allowedRoles={['usuario']}>
-                        <h1>Panel de usuario</h1>
-                        <LogoutButton />
+                        <UsuarioLayout />
                     </ProtectedRoute>
                 }
-            />
+            >
+                <Route
+                    index
+                    element={<Navigate to="/inicio" replace />}
+                />
+
+                <Route
+                    path="inicio"
+                    element={<InicioUsuario />}
+                />
+
+                <Route
+                    path="mensajes"
+                    element={<h1>Mensajes - Próximamente</h1>}
+                />
+
+                <Route
+                    path="recomendaciones"
+                    element={<h1>Recomendaciones - Próximamente</h1>}
+                />
+
+                <Route
+                    path="perfil"
+                    element={<h1>Mi perfil - Próximamente</h1>}
+                />
+            </Route>
+
+            {/* MÓDULO DE TRABAJADOR */}
 
             <Route
                 path="/trabajador"
@@ -91,6 +124,26 @@ const AppRoutes = () => {
             />
 
             <Route
+                path="/trabajador/registrar"
+                element={
+                    <ProtectedRoute allowedRoles={['trabajador']}>
+                        <RegistrarActividad />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/trabajador/negocios/:negocioId"
+                element={
+                    <ProtectedRoute allowedRoles={['trabajador']}>
+                        <GaleriaNegocio />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* MÓDULO DE ADMINISTRADOR */}
+
+            <Route
                 path="/administrador"
                 element={
                     <ProtectedRoute allowedRoles={['administrador']}>
@@ -98,6 +151,7 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+
             <Route
                 path="/administrador/solicitudes/:id"
                 element={
@@ -107,15 +161,7 @@ const AppRoutes = () => {
                 }
             />
 
-            <Route
-                path="/"
-                element={
-                    <Navigate
-                        to={isAuthenticated ? homePath : '/login'}
-                        replace
-                    />
-                }
-            />
+            {/* RUTAS NO ENCONTRADAS */}
 
             <Route
                 path="*"
@@ -124,22 +170,6 @@ const AppRoutes = () => {
                         to={isAuthenticated ? homePath : '/login'}
                         replace
                     />
-                }
-            />
-            <Route
-                path="/trabajador/registrar"
-                element={
-                    <ProtectedRoute allowedRoles={['trabajador']}>
-                        <RegistrarActividad />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/trabajador/negocios/:negocioId"
-                element={
-                    <ProtectedRoute allowedRoles={['trabajador']}>
-                        <GaleriaNegocio />
-                    </ProtectedRoute>
                 }
             />
         </Routes>

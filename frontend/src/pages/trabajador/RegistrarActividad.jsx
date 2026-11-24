@@ -5,7 +5,10 @@ import { obtenerCategorias } from '../../services/trabajadorService';
 import { enviarFormularioRequest } from '../../services/authService';
 import SelectorUbicacion from '../../components/trabajador/SelectorUbicacion';
 
-import './registrarActividad.css';
+import TrabajadorSidebar from '../../components/trabajador/TrabajadorSidebar';
+import './TrabajadorDashboard.css';
+
+import './RegistrarActividad.css';
 
 const RegistrarActividad = () => {
     const navigate = useNavigate();
@@ -214,414 +217,401 @@ const RegistrarActividad = () => {
     };
 
     return (
-        <main className="registro-actividad">
+         <div className="td-layout">
+            <TrabajadorSidebar />
+                <main className="td-main">
+                    <main className="registro-actividad">
 
-            {/* ENCABEZADO */}
-            <header className="registro-header">
 
-                <button
-                    type="button"
-                    className="registro-volver"
-                    onClick={() => navigate('/trabajador')}
-                >
-                    ← Volver al panel
-                </button>
+                        <section className="registro-contenedor">
 
-                <span>CONECTALOCAL</span>
+                            {/* INTRODUCCIÓN */}
+                            <div className="registro-introduccion">
+                                <span>CRECE CON TU COMUNIDAD</span>
+                                <h1>Registra tu actividad</h1>
+                                <p>
+                                    Comparte información sobre tu negocio o los servicios
+                                    que ofreces para que más personas puedan encontrarte.
+                                </p>
 
-            </header>
-
-            <section className="registro-contenedor">
-
-                {/* INTRODUCCIÓN */}
-                <div className="registro-introduccion">
-
-                    <span>CRECE CON TU COMUNIDAD</span>
-
-                    <h1>Registra tu actividad</h1>
-
-                    <p>
-                        Comparte información sobre tu negocio o los servicios
-                        que ofreces para que más personas puedan encontrarte.
-                    </p>
-
-                </div>
-
-                <form
-                    className="registro-formulario"
-                    onSubmit={manejarEnvio}
-                >
-
-                    {/* 01. TIPO DE REGISTRO */}
-                    <section className="form-seccion">
-
-                        <div className="form-titulo">
-                            <span>01</span>
-
-                            <div>
-                                <h2>Tipo de registro</h2>
-                                <p>Selecciona qué deseas registrar.</p>
                             </div>
-                        </div>
 
-                        <div className="tipo-registro-opciones">
-
-                            <button
-                                type="button"
-                                className={
-                                    tipoRegistro === 'negocio'
-                                        ? 'tipo-opcion seleccionado'
-                                        : 'tipo-opcion'
-                                }
-                                onClick={() => cambiarTipoRegistro('negocio')}
-                            >
-                                <span>⌂</span>
-                                <strong>Negocio</strong>
-                                <small>Establecimiento físico</small>
-                            </button>
-
-                            <button
-                                type="button"
-                                className={
-                                    tipoRegistro === 'independiente'
-                                        ? 'tipo-opcion seleccionado'
-                                        : 'tipo-opcion'
-                                }
-                                onClick={() => cambiarTipoRegistro('independiente')}
-                            >
-                                <span>✧</span>
-                                <strong>Actividad independiente</strong>
-                                <small>Servicios por cuenta propia</small>
-                            </button>
-
-                        </div>
-
-                    </section>
-
-                    {/* 02. INFORMACIÓN GENERAL */}
-                    <section className="form-seccion">
-
-                        <div className="form-titulo">
-                            <span>02</span>
-
-                            <div>
-                                <h2>Información general</h2>
-                                <p>Cuéntanos sobre tu actividad.</p>
-                            </div>
-                        </div>
-
-                        <div className="campo-grupo">
-
-                            <label>Nombre comercial *</label>
-
-                            <input
-                                type="text"
-                                name="nombre_comercial"
-                                value={formulario.nombre_comercial}
-                                onChange={manejarCambio}
-                                placeholder="Ej. Taller Mecánico Ramírez"
-                                maxLength={150}
-                                required
-                            />
-
-                        </div>
-
-                        <div className="campo-grupo">
-
-                            <label>Categoría *</label>
-
-                            <select
-                                name="categoria_id"
-                                value={formulario.categoria_id}
-                                onChange={manejarCambio}
-                                required
-                                disabled={cargandoCategorias}
+                            <form
+                                className="registro-formulario"
+                                onSubmit={manejarEnvio}
                             >
 
-                                <option value="">
-                                    {cargandoCategorias
-                                        ? 'Cargando categorías...'
-                                        : 'Selecciona una categoría'}
-                                </option>
+                                {/* 01. TIPO DE REGISTRO */}
+                                <section className="form-seccion">
 
-                                {categorias.map((categoria) => (
-                                    <option
-                                        key={categoria.id}
-                                        value={categoria.id}
-                                    >
-                                        {categoria.nombre}
-                                    </option>
-                                ))}
+                                    <div className="form-titulo">
+                                        <span>01</span>
 
-                            </select>
+                                        <div>
+                                            <h2>Tipo de registro</h2>
+                                            <p>Selecciona qué deseas registrar.</p>
+                                        </div>
+                                    </div>
 
-                            {!cargandoCategorias &&
-                                categorias.length === 0 && (
-                                    <small>
-                                        No hay categorías disponibles.
-                                    </small>
+                                    <div className="tipo-registro-opciones">
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                tipoRegistro === 'negocio'
+                                                    ? 'tipo-opcion seleccionado'
+                                                    : 'tipo-opcion'
+                                            }
+                                            onClick={() => cambiarTipoRegistro('negocio')}
+                                        >
+                                            <span>⌂</span>
+                                            <strong>Negocio</strong>
+                                            <small>Establecimiento físico</small>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                tipoRegistro === 'independiente'
+                                                    ? 'tipo-opcion seleccionado'
+                                                    : 'tipo-opcion'
+                                            }
+                                            onClick={() => cambiarTipoRegistro('independiente')}
+                                        >
+                                            <span>✧</span>
+                                            <strong>Actividad independiente</strong>
+                                            <small>Servicios por cuenta propia</small>
+                                        </button>
+
+                                    </div>
+
+                                </section>
+
+                                {/* 02. INFORMACIÓN GENERAL */}
+                                <section className="form-seccion">
+
+                                    <div className="form-titulo">
+                                        <span>02</span>
+
+                                        <div>
+                                            <h2>Información general</h2>
+                                            <p>Cuéntanos sobre tu actividad.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="campo-grupo">
+
+                                        <label>Nombre comercial *</label>
+
+                                        <input
+                                            type="text"
+                                            name="nombre_comercial"
+                                            value={formulario.nombre_comercial}
+                                            onChange={manejarCambio}
+                                            placeholder="Ej. Taller Mecánico Ramírez"
+                                            maxLength={150}
+                                            required
+                                        />
+
+                                    </div>
+
+                                    <div className="campo-grupo">
+
+                                        <label>Categoría *</label>
+
+                                        <select
+                                            name="categoria_id"
+                                            value={formulario.categoria_id}
+                                            onChange={manejarCambio}
+                                            required
+                                            disabled={cargandoCategorias}
+                                        >
+
+                                            <option value="">
+                                                {cargandoCategorias
+                                                    ? 'Cargando categorías...'
+                                                    : 'Selecciona una categoría'}
+                                            </option>
+
+                                            {categorias.map((categoria) => (
+                                                <option
+                                                    key={categoria.id}
+                                                    value={categoria.id}
+                                                >
+                                                    {categoria.nombre}
+                                                </option>
+                                            ))}
+
+                                        </select>
+
+                                        {!cargandoCategorias &&
+                                            categorias.length === 0 && (
+                                                <small>
+                                                    No hay categorías disponibles.
+                                                </small>
+                                            )}
+
+                                    </div>
+
+                                    <div className="campo-grupo">
+
+                                        <label>Descripción *</label>
+
+                                        <textarea
+                                            name="descripcion"
+                                            value={formulario.descripcion}
+                                            onChange={manejarCambio}
+                                            placeholder="Describe los productos o servicios que ofreces..."
+                                            rows="5"
+                                            maxLength={2000}
+                                            required
+                                        />
+
+                                    </div>
+
+                                </section>
+
+                                {/* 03. UBICACIÓN */}
+                                <section className="form-seccion">
+
+                                    <div className="form-titulo">
+                                        <span>03</span>
+
+                                        <div>
+                                            <h2>Ubicación</h2>
+                                            <p>Indica dónde pueden encontrarte.</p>
+                                        </div>
+                                    </div>
+
+                                    {tipoRegistro === 'negocio' ? (
+
+                                        <div className="campo-grupo">
+
+                                            <label>
+                                                Dirección del establecimiento *
+                                            </label>
+
+                                            <textarea
+                                                name="direccion"
+                                                value={formulario.direccion}
+                                                onChange={manejarCambio}
+                                                placeholder="Calle, número, colonia, municipio..."
+                                                rows="3"
+                                                required
+                                            />
+
+                                        </div>
+
+                                    ) : (
+
+                                        <div className="campo-grupo">
+
+                                            <label>Zona de cobertura *</label>
+
+                                            <input
+                                                type="text"
+                                                name="zona_cobertura"
+                                                value={formulario.zona_cobertura}
+                                                onChange={manejarCambio}
+                                                placeholder="Ej. Celaya y municipios cercanos"
+                                                required
+                                            />
+
+                                        </div>
+
+                                    )}
+
+                                    <div className="campo-grupo">
+
+                                        <label>Selecciona tu ubicación en el mapa *</label>
+
+                                        <SelectorUbicacion
+                                            ubicacion={{
+                                                lat: formulario.lat,
+                                                lng: formulario.lng
+                                            }}
+                                            onChange={manejarUbicacion}
+                                        />
+
+                                    </div>
+
+                                </section>
+
+                                {/* 04. CONTACTO */}
+                                <section className="form-seccion">
+
+                                    <div className="form-titulo">
+                                        <span>04</span>
+
+                                        <div>
+                                            <h2>Información de contacto</h2>
+                                            <p>Agrega al menos un medio de contacto.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid">
+
+                                        <div className="campo-grupo">
+
+                                            <label>Teléfono</label>
+
+                                            <input
+                                                type="tel"
+                                                name="telefono_contacto"
+                                                value={formulario.telefono_contacto}
+                                                onChange={manejarCambio}
+                                                placeholder="Número telefónico"
+                                            />
+
+                                        </div>
+
+                                        <div className="campo-grupo">
+
+                                            <label>WhatsApp</label>
+
+                                            <input
+                                                type="tel"
+                                                name="whatsapp"
+                                                value={formulario.whatsapp}
+                                                onChange={manejarCambio}
+                                                placeholder="Número de WhatsApp"
+                                            />
+
+                                        </div>
+
+                                        <div className="campo-grupo">
+
+                                            <label>Correo electrónico</label>
+
+                                            <input
+                                                type="email"
+                                                name="email_contacto"
+                                                value={formulario.email_contacto}
+                                                onChange={manejarCambio}
+                                                placeholder="correo@ejemplo.com"
+                                            />
+
+                                        </div>
+
+                                        <div className="campo-grupo">
+
+                                            <label>Sitio web</label>
+
+                                            <input
+                                                type="url"
+                                                name="sitio_web"
+                                                value={formulario.sitio_web}
+                                                onChange={manejarCambio}
+                                                placeholder="https://ejemplo.com"
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+                                </section>
+
+                                {/* 05. FOTOGRAFÍAS */}
+                                <section className="form-seccion">
+
+                                    <div className="form-titulo">
+                                        <span>05</span>
+
+                                        <div>
+                                            <h2>Fotografías</h2>
+                                            <p>
+                                                Agrega hasta cinco imágenes de tu actividad.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="campo-grupo">
+
+                                        <label>Seleccionar fotografías</label>
+
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            multiple
+                                            onChange={manejarFotografias}
+                                        />
+
+                                        <small className="ayuda-campo">
+                                            Formatos JPG, PNG o WEBP. Máximo 5 MB por imagen.
+                                        </small>
+
+                                        <span className="contador-fotos">
+                                            {fotografias.length} de 5 fotografías seleccionadas
+                                        </span>
+
+                                    </div>
+
+                                    {fotografias.length > 0 && (
+
+                                        <div className="lista-fotografias">
+
+                                            {fotografias.map((archivo, indice) => (
+                                                <div key={`${archivo.name}-${indice}`}>
+                                                    <span>{archivo.name}</span>
+                                                    <small>
+                                                        {(archivo.size / 1024 / 1024).toFixed(2)} MB
+                                                    </small>
+                                                </div>
+                                            ))}
+
+                                        </div>
+
+                                    )}
+
+                                </section>
+
+                                {/* MENSAJES */}
+                                {error && (
+                                    <div className="registro-alerta error">
+                                        {error}
+                                    </div>
                                 )}
 
-                        </div>
-
-                        <div className="campo-grupo">
-
-                            <label>Descripción *</label>
-
-                            <textarea
-                                name="descripcion"
-                                value={formulario.descripcion}
-                                onChange={manejarCambio}
-                                placeholder="Describe los productos o servicios que ofreces..."
-                                rows="5"
-                                maxLength={2000}
-                                required
-                            />
-
-                        </div>
-
-                    </section>
-
-                    {/* 03. UBICACIÓN */}
-                    <section className="form-seccion">
-
-                        <div className="form-titulo">
-                            <span>03</span>
-
-                            <div>
-                                <h2>Ubicación</h2>
-                                <p>Indica dónde pueden encontrarte.</p>
-                            </div>
-                        </div>
-
-                        {tipoRegistro === 'negocio' ? (
-
-                            <div className="campo-grupo">
-
-                                <label>
-                                    Dirección del establecimiento *
-                                </label>
-
-                                <textarea
-                                    name="direccion"
-                                    value={formulario.direccion}
-                                    onChange={manejarCambio}
-                                    placeholder="Calle, número, colonia, municipio..."
-                                    rows="3"
-                                    required
-                                />
-
-                            </div>
-
-                        ) : (
-
-                            <div className="campo-grupo">
-
-                                <label>Zona de cobertura *</label>
-
-                                <input
-                                    type="text"
-                                    name="zona_cobertura"
-                                    value={formulario.zona_cobertura}
-                                    onChange={manejarCambio}
-                                    placeholder="Ej. Celaya y municipios cercanos"
-                                    required
-                                />
-
-                            </div>
-
-                        )}
-
-                        <div className="campo-grupo">
-
-                            <label>Selecciona tu ubicación en el mapa *</label>
-
-                            <SelectorUbicacion
-                                ubicacion={{
-                                    lat: formulario.lat,
-                                    lng: formulario.lng
-                                }}
-                                onChange={manejarUbicacion}
-                            />
-
-                        </div>
-
-                    </section>
-
-                    {/* 04. CONTACTO */}
-                    <section className="form-seccion">
-
-                        <div className="form-titulo">
-                            <span>04</span>
-
-                            <div>
-                                <h2>Información de contacto</h2>
-                                <p>Agrega al menos un medio de contacto.</p>
-                            </div>
-                        </div>
-
-                        <div className="form-grid">
-
-                            <div className="campo-grupo">
-
-                                <label>Teléfono</label>
-
-                                <input
-                                    type="tel"
-                                    name="telefono_contacto"
-                                    value={formulario.telefono_contacto}
-                                    onChange={manejarCambio}
-                                    placeholder="Número telefónico"
-                                />
-
-                            </div>
-
-                            <div className="campo-grupo">
-
-                                <label>WhatsApp</label>
-
-                                <input
-                                    type="tel"
-                                    name="whatsapp"
-                                    value={formulario.whatsapp}
-                                    onChange={manejarCambio}
-                                    placeholder="Número de WhatsApp"
-                                />
-
-                            </div>
-
-                            <div className="campo-grupo">
-
-                                <label>Correo electrónico</label>
-
-                                <input
-                                    type="email"
-                                    name="email_contacto"
-                                    value={formulario.email_contacto}
-                                    onChange={manejarCambio}
-                                    placeholder="correo@ejemplo.com"
-                                />
-
-                            </div>
-
-                            <div className="campo-grupo">
-
-                                <label>Sitio web</label>
-
-                                <input
-                                    type="url"
-                                    name="sitio_web"
-                                    value={formulario.sitio_web}
-                                    onChange={manejarCambio}
-                                    placeholder="https://ejemplo.com"
-                                />
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                    {/* 05. FOTOGRAFÍAS */}
-                    <section className="form-seccion">
-
-                        <div className="form-titulo">
-                            <span>05</span>
-
-                            <div>
-                                <h2>Fotografías</h2>
-                                <p>
-                                    Agrega hasta cinco imágenes de tu actividad.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="campo-grupo">
-
-                            <label>Seleccionar fotografías</label>
-
-                            <input
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp"
-                                multiple
-                                onChange={manejarFotografias}
-                            />
-
-                            <small className="ayuda-campo">
-                                Formatos JPG, PNG o WEBP. Máximo 5 MB por imagen.
-                            </small>
-
-                            <span className="contador-fotos">
-                                {fotografias.length} de 5 fotografías seleccionadas
-                            </span>
-
-                        </div>
-
-                        {fotografias.length > 0 && (
-
-                            <div className="lista-fotografias">
-
-                                {fotografias.map((archivo, indice) => (
-                                    <div key={`${archivo.name}-${indice}`}>
-                                        <span>{archivo.name}</span>
-                                        <small>
-                                            {(archivo.size / 1024 / 1024).toFixed(2)} MB
-                                        </small>
+                                {mensaje && (
+                                    <div className="registro-alerta exito">
+                                        {mensaje}
                                     </div>
-                                ))}
+                                )}
 
-                            </div>
+                                {/* AVISO */}
+                                <div className="registro-aviso">
 
-                        )}
+                                    <strong>Importante:</strong>
 
-                    </section>
+                                    <p>
+                                        Al enviar tu registro, será enviado a revisión
+                                        administrativa. Tu actividad no será publicada
+                                        hasta que sea aprobada.
+                                    </p>
 
-                    {/* MENSAJES */}
-                    {error && (
-                        <div className="registro-alerta error">
-                            {error}
-                        </div>
-                    )}
+                                </div>
 
-                    {mensaje && (
-                        <div className="registro-alerta exito">
-                            {mensaje}
-                        </div>
-                    )}
+                                {/* BOTÓN DE ENVÍO */}
+                                <button
+                                    type="submit"
+                                    className="registro-enviar"
+                                    disabled={
+                                        enviando ||
+                                        cargandoCategorias ||
+                                        categorias.length === 0
+                                    }
+                                >
+                                    {enviando
+                                        ? 'Enviando solicitud...'
+                                        : 'Enviar solicitud para revisión →'}
+                                </button>
 
-                    {/* AVISO */}
-                    <div className="registro-aviso">
+                            </form>
 
-                        <strong>Importante:</strong>
-
-                        <p>
-                            Al enviar tu registro, será enviado a revisión
-                            administrativa. Tu actividad no será publicada
-                            hasta que sea aprobada.
-                        </p>
-
-                    </div>
-
-                    {/* BOTÓN DE ENVÍO */}
-                    <button
-                        type="submit"
-                        className="registro-enviar"
-                        disabled={
-                            enviando ||
-                            cargandoCategorias ||
-                            categorias.length === 0
-                        }
-                    >
-                        {enviando
-                            ? 'Enviando solicitud...'
-                            : 'Enviar solicitud para revisión →'}
-                    </button>
-
-                </form>
-
-            </section>
-
-        </main>
+                        </section>
+                    </main>
+                </main>
+        </div>
     );
 };
 

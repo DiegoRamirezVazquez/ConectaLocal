@@ -3,13 +3,16 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const { verificarToken } = require('./middlewares/authMiddleware');
 
 const authRoutes = require('./routes/authRoutes');
 const solicitudesTrabajadorRoutes = require('./routes/solicitudesTrabajadorRoutes');
-const { verificarToken } = require('./middlewares/authMiddleware');
 const administradorRoutes = require('./routes/administradorRoutes');
 const negociosRoutes = require('./routes/negociosRoutes');
 const fotosNegocioRoutes = require('./routes/fotosNegocioRoutes');
+const mensajesRoutes = require('./routes/mensajesRoutes');
+const publicacionesRoutes = require('./routes/publicacionesRoutes');
+const eventosRoutes = require('./routes/eventosRoutes');
 
 const app = express();
 
@@ -44,15 +47,12 @@ app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:9090',
     credentials: true
 }));
-
 // 2. Middlewares generales.
 app.use(express.json());
 app.use(cookieParser());
 app.use(verificarOrigen);
-
 // 3. Rutas de autenticación.
 app.use('/api/v1/auth', authRoutes);
-
 // 4. Rutas de solicitudes de trabajadores.
 app.use('/api/v1/solicitudes-trabajador', solicitudesTrabajadorRoutes);
 // 5. Rutas administrativas.
@@ -61,6 +61,12 @@ app.use('/api/v1/administrador', administradorRoutes);
 app.use('/api/v1/negocios', negociosRoutes);
 // 7. Rutas de fotos del negocio.
 app.use('/api/v1/negocios', fotosNegocioRoutes);
+// 8. Rutas de mensajería del trabajador.
+app.use('/api/v1/mensajes', mensajesRoutes);
+// 9. Rutas de publicaciones del foro.
+app.use('/api/v1/publicaciones', publicacionesRoutes);
+// 10. Rutas de eventos del trabajador.
+app.use('/api/v1/eventos', eventosRoutes);
 
 // Ruta inicial.
 app.get('/api/v1/', (req, res) => {
@@ -70,7 +76,7 @@ app.get('/api/v1/', (req, res) => {
     });
 });
 
-// 6. Ruta para probar la autenticación mediante cookie.
+// Ruta para probar la autenticación mediante cookie.
 app.get('/api/v1/test-auth', verificarToken, (req, res) => {
     return res.status(200).json({
         success: true,
@@ -79,8 +85,9 @@ app.get('/api/v1/test-auth', verificarToken, (req, res) => {
     });
 });
 
-// 7. Iniciar servidor.
+// Iniciar servidor.
 const PORT = process.env.PORT || 3000;
+
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor ConectaLocal activo en el puerto ${PORT}`);

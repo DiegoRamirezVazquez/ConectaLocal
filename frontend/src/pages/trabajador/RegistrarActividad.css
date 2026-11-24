@@ -1,0 +1,283 @@
+@import "../../styles/tema.css";
+
+.registro-actividad {
+  min-height: 100vh;
+  font-family: var(--cl-fuente-texto);
+  color: var(--cl-tinta);
+  background: var(--cl-fondo);
+}
+
+.registro-actividad h1,
+.registro-actividad h2 { margin: 0; font-family: var(--cl-fuente-titulo); }
+
+/* ---------- Barra superior ---------- */
+.registro-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--cl-borde);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+}
+
+.registro-header > span {
+  font-family: var(--cl-fuente-titulo);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--cl-teal);
+}
+
+.registro-volver {
+  padding: 9px 16px;
+  border: 1.5px solid var(--cl-borde);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--cl-teal-oscuro);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.registro-volver:hover { background: var(--cl-teal-claro); }
+.registro-volver:focus-visible { outline: 3px solid var(--cl-oro); outline-offset: 2px; }
+
+/* ---------- Contenedor e introducción ---------- */
+.registro-contenedor { max-width: 780px; margin: 0 auto; padding: 36px 20px 64px; }
+
+.registro-introduccion { margin-bottom: 28px; }
+
+.registro-introduccion > span {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--cl-teal-claro);
+  color: var(--cl-teal);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.registro-introduccion h1 { font-size: 2.2rem; line-height: 1.15; color: var(--cl-teal-oscuro); }
+.registro-introduccion p { max-width: 56ch; margin: 10px 0 0; line-height: 1.55; color: var(--cl-suave); }
+
+/* ---------- Formulario ---------- */
+.registro-formulario { display: flex; flex-direction: column; gap: 20px; }
+
+.form-seccion {
+  padding: 28px;
+  border: 1px solid var(--cl-borde);
+  border-radius: var(--cl-radio-grande);
+  background: #fff;
+}
+
+.form-titulo { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.form-titulo h2 { font-size: 1.25rem; }
+.form-titulo p { margin: 3px 0 0; font-size: 0.9rem; color: var(--cl-suave); }
+
+.form-titulo > span {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--cl-teal);
+  color: var(--cl-oro);
+  font-family: var(--cl-fuente-titulo);
+  font-weight: 700;
+}
+
+/* ---------- Tipo de registro ---------- */
+.tipo-registro-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.tipo-opcion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 18px;
+  border: 1.5px solid var(--cl-borde);
+  border-radius: 14px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.tipo-opcion:hover { border-color: var(--cl-teal); }
+.tipo-opcion:focus-visible { outline: 3px solid var(--cl-oro); outline-offset: 2px; }
+
+.tipo-opcion span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--cl-teal-claro);
+  color: var(--cl-teal);
+  font-size: 1.25rem;
+}
+.tipo-opcion strong { font-size: 1rem; color: var(--cl-tinta); }
+.tipo-opcion small { font-size: 0.85rem; color: var(--cl-suave); }
+
+.tipo-opcion.seleccionado {
+  border-color: var(--cl-teal);
+  background: #f1f8f6;
+  box-shadow: var(--cl-anillo);
+}
+.tipo-opcion.seleccionado span { background: var(--cl-teal); color: #fff; }
+
+/* ---------- Campos ---------- */
+.campo-grupo { margin-bottom: 18px; }
+.form-seccion .campo-grupo:last-child { margin-bottom: 0; }
+
+.campo-grupo label { display: block; margin-bottom: 7px; font-size: 0.92rem; font-weight: 600; }
+
+.campo-grupo input[type="text"],
+.campo-grupo input[type="tel"],
+.campo-grupo input[type="email"],
+.campo-grupo input[type="url"],
+.campo-grupo select,
+.campo-grupo textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid var(--cl-borde);
+  border-radius: var(--cl-radio);
+  background: #fff;
+  font: inherit;
+  color: var(--cl-tinta);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campo-grupo input[type="text"],
+.campo-grupo input[type="tel"],
+.campo-grupo input[type="email"],
+.campo-grupo input[type="url"],
+.campo-grupo select { height: 48px; padding: 0 14px; }
+
+.campo-grupo select { cursor: pointer; }
+.campo-grupo textarea { padding: 12px 14px; line-height: 1.5; resize: vertical; }
+
+.campo-grupo input::placeholder,
+.campo-grupo textarea::placeholder { color: #8a9a9d; }
+
+.campo-grupo input:focus,
+.campo-grupo select:focus,
+.campo-grupo textarea:focus {
+  outline: none;
+  border-color: var(--cl-teal);
+  box-shadow: var(--cl-anillo);
+}
+
+.campo-grupo select:disabled { background: var(--cl-fondo); cursor: wait; }
+.campo-grupo > small { display: block; margin-top: 6px; font-size: 0.85rem; color: var(--cl-suave); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+
+/* Mapa (selector de ubicación) */
+.registro-formulario .leaflet-container {
+  border: 1.5px solid var(--cl-borde);
+  border-radius: 14px;
+}
+
+/* ---------- Fotografías ---------- */
+.campo-grupo input[type="file"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1.5px dashed var(--cl-borde);
+  border-radius: var(--cl-radio);
+  background: var(--cl-fondo);
+  font: inherit;
+  color: var(--cl-suave);
+  cursor: pointer;
+}
+.campo-grupo input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--cl-teal);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.campo-grupo input[type="file"]:hover { border-color: var(--cl-teal); }
+
+.ayuda-campo { display: block; margin-top: 8px; font-size: 0.85rem; color: var(--cl-suave); }
+
+.contador-fotos {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--cl-teal-claro);
+  color: var(--cl-teal);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.lista-fotografias { display: grid; gap: 8px; margin-top: 16px; }
+.lista-fotografias div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--cl-borde);
+  border-radius: 10px;
+  background: var(--cl-fondo);
+  font-size: 0.9rem;
+}
+.lista-fotografias span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista-fotografias small { flex: none; color: var(--cl-suave); }
+
+/* ---------- Mensajes ---------- */
+.registro-alerta { padding: 13px 16px; border-left: 4px solid; border-radius: 10px; font-size: 0.93rem; }
+.registro-alerta.error { border-color: var(--cl-rojo); background: var(--cl-rojo-bg); color: var(--cl-rojo); }
+.registro-alerta.exito { border-color: var(--cl-verde); background: var(--cl-verde-bg); color: var(--cl-verde); }
+
+.registro-aviso {
+  padding: 16px 18px;
+  border-left: 4px solid var(--cl-oro);
+  border-radius: 10px;
+  background: var(--cl-ambar-bg);
+  color: #5c3d00;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.registro-aviso p { margin: 4px 0 0; }
+
+/* ---------- Enviar ---------- */
+.registro-enviar {
+  width: 100%;
+  height: 54px;
+  border: 0;
+  border-radius: var(--cl-radio);
+  background: var(--cl-teal);
+  color: #fff;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.registro-enviar:hover:not(:disabled) { background: var(--cl-teal-oscuro); }
+.registro-enviar:focus-visible { outline: 3px solid var(--cl-oro); outline-offset: 3px; }
+.registro-enviar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 640px) {
+  .registro-header { padding: 12px 16px; }
+  .registro-introduccion h1 { font-size: 1.8rem; }
+  .form-seccion { padding: 20px; }
+  .tipo-registro-opciones,
+  .form-grid { grid-template-columns: 1fr; }
+}

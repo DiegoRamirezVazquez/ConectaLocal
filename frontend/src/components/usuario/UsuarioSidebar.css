@@ -1,0 +1,292 @@
+
+@import "../../styles/tema.css";
+
+/* ---------- Barra lateral ---------- */
+
+.us-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 260px;
+  min-width: 260px;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 26px 18px;
+  overflow-y: auto;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.04) 0 1px,
+      transparent 1px 56px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 0 1px,
+      transparent 1px 56px
+    ),
+    var(--cl-teal);
+
+  color: #fff;
+  z-index: 1000;
+}
+
+/* ---------- Marca ---------- */
+
+.us-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--cl-fuente-titulo);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.us-marca-desktop {
+  margin-bottom: 14px;
+}
+
+.us-logo {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--cl-oro);
+  color: var(--cl-teal-oscuro);
+}
+
+/* ---------- Perfil ---------- */
+
+.us-perfil {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.us-perfil div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.us-perfil strong {
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.us-perfil div span {
+  font-size: 0.8rem;
+  color: #b5d5d0;
+}
+
+.us-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--cl-oro);
+  color: var(--cl-teal-oscuro);
+  font-weight: 700;
+}
+
+/* ---------- Etiquetas del menú ---------- */
+
+.us-menu-label {
+  margin: 6px 0 4px 14px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #9cc4be;
+}
+
+/* ---------- Enlaces ---------- */
+
+.us-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.us-enlace {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #d3e8e4;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.us-enlace:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.us-enlace.activo {
+  background: #fff;
+  color: var(--cl-teal-oscuro);
+  font-weight: 600;
+}
+
+.us-enlace:focus-visible {
+  outline: 3px solid var(--cl-oro);
+  outline-offset: 2px;
+}
+
+/* ---------- Separador ---------- */
+
+.us-sidebar-separador {
+  height: 1px;
+  margin: 12px 0 6px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- Cerrar sesión ---------- */
+
+.us-logout {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.us-sidebar .us-logout button {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.us-sidebar .us-logout button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- Encabezado móvil ---------- */
+
+.us-mobile-header {
+  display: none;
+}
+
+/* ---------- Fondo oscuro del menú móvil ---------- */
+
+.us-overlay {
+  display: none;
+}
+
+/* ---------- Responsivo ---------- */
+
+@media (max-width: 900px) {
+  .us-mobile-header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    box-sizing: border-box;
+    padding: 0 18px;
+    background: var(--cl-teal);
+    color: #fff;
+    z-index: 1100;
+  }
+
+  .us-mobile-header .us-marca {
+    margin: 0;
+  }
+
+  .us-menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .us-menu-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .us-marca-desktop {
+    display: none;
+  }
+
+  .us-sidebar {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    width: 280px;
+    min-width: 280px;
+    height: calc(100vh - 68px);
+    padding: 22px 18px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 1200;
+  }
+
+  .us-sidebar.us-abierto {
+    transform: translateX(0);
+  }
+
+  .us-perfil {
+    display: flex;
+  }
+
+  .us-menu-label {
+    display: block;
+  }
+
+  .us-sidebar-separador {
+    display: block;
+  }
+
+  .us-nav {
+    flex-direction: column;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .us-enlace {
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  .us-logout {
+    margin-top: auto;
+    padding-top: 16px;
+  }
+
+  .us-overlay {
+    display: block;
+    position: fixed;
+    inset: 68px 0 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1150;
+  }
+}

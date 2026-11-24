@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
-  Home,
   Store,
   Wrench,
-  PlusCircle,
-  MessageCircle,
-  Star,
   ClipboardList,
-  UserRound,
-  Settings,
   Bell,
   MapPin,
   CheckCircle2,
@@ -19,11 +13,13 @@ import {
   ArrowRight,
   Pencil,
   BriefcaseBusiness,
-  Camera
+  Camera,
+  MessageCircle,
+  Star,
+  PlusCircle
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
-import LogoutButton from "../../components/common/LogoutButton";
 
 import {
   obtenerMisSolicitudes,
@@ -31,6 +27,7 @@ import {
   actualizarFotoPrincipalNegocio
 } from "../../services/trabajadorService";
 
+import TrabajadorSidebar from "../../components/trabajador/TrabajadorSidebar";
 import "./TrabajadorDashboard.css";
 
 const ESTADOS = {
@@ -63,6 +60,7 @@ const obtenerIconoCategoria = (icono) => {
 const TrabajadorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [solicitudes, setSolicitudes] = useState([]);
   const [negocios, setNegocios] = useState([]);
@@ -74,9 +72,21 @@ const TrabajadorDashboard = () => {
   const [errorNegocios, setErrorNegocios] = useState("");
 
   const primerNombre = user?.nombre?.split(" ")[0] || "bienvenido";
-  const inicial = user?.nombre?.charAt(0)?.toUpperCase() || "T";
 
   const [subiendoFotoId, setSubiendoFotoId] = useState(null);
+
+  useEffect(() => {
+    if (location.hash) {
+        const id = location.hash.substring(1);
+
+        requestAnimationFrame(() => {
+            document.getElementById(id)?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
+    }
+}, [location.pathname, location.hash]);
 
   // CARGAR SOLICITUDES Y NEGOCIOS.
   useEffect(() => {
@@ -176,24 +186,6 @@ const TrabajadorDashboard = () => {
     }
     };
 
-  const menuPrincipal = [
-    { nombre: "Inicio", icono: Home, destino: "inicio" },
-    { nombre: "Mis negocios", icono: Store, destino: "negocios" },
-    { nombre: "Agregar negocio", icono: PlusCircle, accion: irARegistro },
-    { nombre: "Mensajería", icono: MessageCircle },
-    { nombre: "Reseñas", icono: Star },
-    {
-      nombre: "Mis solicitudes",
-      icono: ClipboardList,
-      destino: "solicitudes"
-    }
-  ];
-
-  const menuCuenta = [
-    { nombre: "Mi perfil", icono: UserRound },
-    { nombre: "Configuración", icono: Settings }
-  ];
-
   const estadisticas = [
     {
       titulo: "Negocios registrados",
@@ -236,75 +228,8 @@ const TrabajadorDashboard = () => {
   return (
     <div className="td-layout">
 
-      {/* MENÚ LATERAL */}
-      <aside className="td-sidebar">
+      <TrabajadorSidebar />
 
-        <div className="td-marca">
-          <span className="td-logo">
-            <MapPin size={24} fill="currentColor" />
-          </span>
-
-          <span>ConectaLocal</span>
-        </div>
-
-        <div className="td-perfil">
-          <span className="td-avatar">{inicial}</span>
-
-          <div>
-            <strong>{user?.nombre || "Trabajador"}</strong>
-            <span>Trabajador / Negocio</span>
-          </div>
-        </div>
-
-        <span className="td-menu-label">MENÚ PRINCIPAL</span>
-
-        <nav className="td-nav">
-          {menuPrincipal.map(({ nombre, icono: Icono, destino, accion }) => (
-            <button
-              key={nombre}
-              type="button"
-              className={`td-enlace ${
-                nombre === "Inicio" ? "activo" : ""
-              }`}
-              onClick={
-                accion ||
-                (() =>
-                  destino &&
-                  document.getElementById(destino)?.scrollIntoView({
-                    behavior: "smooth"
-                  }))
-              }
-            >
-              <Icono size={20} />
-              <span>{nombre}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="td-sidebar-separador" />
-
-        <span className="td-menu-label">CUENTA</span>
-
-        <nav className="td-nav">
-          {menuCuenta.map(({ nombre, icono: Icono }) => (
-            <button
-              key={nombre}
-              type="button"
-              className="td-enlace"
-            >
-              <Icono size={20} />
-              <span>{nombre}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="td-logout">
-          <LogoutButton />
-        </div>
-
-      </aside>
-
-      {/* CONTENIDO PRINCIPAL */}
       <main className="td-main">
 
         {/* ENCABEZADO */}

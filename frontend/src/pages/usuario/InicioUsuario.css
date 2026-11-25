@@ -1156,3 +1156,244 @@ button.foro-accion.activa span {
 .buscador-servicios button:hover {
   background: #176bc0;
 }
+
+/* =========================================
+   SECCIÓN: MI RESEÑA
+========================================= */
+
+.ficha-mi-resena {
+  margin-top: 24px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+}
+
+.ficha-mi-resena h3 {
+  margin: 0 0 18px;
+  color: #252525;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ficha-resena-formulario,
+.ficha-resena-propia {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ficha-resena-formulario > p {
+  margin: 0 0 4px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ficha-resena-label {
+  display: block;
+  margin-top: 5px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ESTRELLAS */
+
+.ficha-resena-estrellas {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ficha-resena-estrellas button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.ficha-resena-estrellas button:hover:not(:disabled) {
+  transform: scale(1.18);
+}
+
+.ficha-resena-estrellas .estrella-activa {
+  color: #d6a329;
+}
+
+.ficha-resena-estrellas .estrella-inactiva {
+  color: #d5d5d5;
+}
+
+.ficha-resena-estrellas button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* COMENTARIO */
+
+.ficha-resena-formulario textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 13px 15px;
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  outline: none;
+  background: #fafafa;
+  color: #333;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ficha-resena-formulario textarea:focus {
+  border-color: #8b2635;
+  box-shadow: 0 0 0 3px rgba(139, 38, 53, 0.10);
+  background: #fff;
+}
+
+.ficha-resena-formulario textarea:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.ficha-resena-formulario > small {
+  margin-top: -7px;
+  color: #999;
+  font-size: 12px;
+  text-align: right;
+}
+
+/* BOTONES */
+
+.ficha-resena-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.ficha-resena-acciones button {
+  padding: 10px 18px;
+  border: 1px solid #8b2635;
+  border-radius: 8px;
+  background: #8b2635;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.ficha-resena-acciones button:hover:not(:disabled) {
+  background: #6f1d2a;
+  transform: translateY(-1px);
+}
+
+.ficha-resena-acciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* BOTÓN SECUNDARIO */
+
+.ficha-resena-acciones button + button {
+  border-color: #d5d5d5;
+  background: #fff;
+  color: #555;
+}
+
+.ficha-resena-acciones button + button:hover:not(:disabled) {
+  border-color: #aaa;
+  background: #f5f5f5;
+}
+
+/* RESEÑA PROPIA */
+
+.ficha-resena-propia {
+  padding: 16px;
+  border: 1px solid #ededed;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.ficha-resena-propia .ficha-resena-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ficha-resena-propia .ficha-resena-encabezado strong {
+  color: #333;
+  font-size: 14px;
+}
+
+.ficha-resena-propia .ficha-resena-encabezado span {
+  color: #d6a329;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.ficha-resena-propia > p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ficha-resena-propia > small {
+  color: #999;
+  font-size: 12px;
+}
+
+/* MENSAJES */
+
+.ficha-resena-error,
+.ficha-resena-mensaje {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ficha-resena-error {
+  border: 1px solid #f0caca;
+  background: #fff3f3;
+  color: #a52a2a;
+}
+
+.ficha-resena-mensaje {
+  border: 1px solid #cce8d5;
+  background: #f0faf3;
+  color: #267342;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+  .ficha-mi-resena {
+    padding: 16px;
+  }
+
+  .ficha-resena-propia .ficha-resena-encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ficha-resena-acciones {
+    flex-direction: column;
+  }
+
+  .ficha-resena-acciones button {
+    width: 100%;
+  }
+}

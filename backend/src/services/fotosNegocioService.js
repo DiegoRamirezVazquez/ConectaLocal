@@ -131,6 +131,50 @@ const obtenerFotosNegocio = async (negocioId, perfilId) => {
     return data || [];
 };
 
+// CONSULTAR GALERÍA PÚBLICA DE UN NEGOCIO.
+const obtenerFotosNegocioPublicas = async (negocioId) => {
+
+    // Verificar que el negocio exista.
+    const { data: negocio, error: errorNegocio } = await supabaseAdmin
+        .from('negocios')
+        .select('id')
+        .eq('id', negocioId)
+        .maybeSingle();
+
+    if (errorNegocio) {
+        console.error(
+            'Error al verificar negocio público:',
+            errorNegocio.message
+        );
+
+        throw new Error('No fue posible consultar el negocio.');
+    }
+
+    if (!negocio) {
+        const error = new Error('El negocio no existe.');
+        error.codigo = 'NEGOCIO_NO_ENCONTRADO';
+        throw error;
+    }
+
+    // Consultar fotografías sin exigir que el visitante sea propietario.
+    const { data, error } = await supabaseAdmin
+        .from('fotos_negocio')
+        .select('id, negocio_id, url, descripcion')
+        .eq('negocio_id', negocioId)
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.error(
+            'Error al consultar galería pública:',
+            error.message
+        );
+
+        throw new Error('No fue posible consultar la galería.');
+    }
+
+    return data || [];
+};
+
 // SUBIR FOTOGRAFÍAS ADICIONALES.
 const subirFotosNegocio = async (
     negocioId,
@@ -340,5 +384,6 @@ const eliminarFotoNegocio = async (
 module.exports = {
     obtenerFotosNegocio,
     subirFotosNegocio,
-    eliminarFotoNegocio
+    eliminarFotoNegocio,
+    obtenerFotosNegocioPublicas
 };

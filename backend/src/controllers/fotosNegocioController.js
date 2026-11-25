@@ -2,7 +2,8 @@
 const {
     obtenerFotosNegocio,
     subirFotosNegocio,
-    eliminarFotoNegocio
+    eliminarFotoNegocio,
+    obtenerFotosNegocioPublicas
 } = require('../services/fotosNegocioService');
 
 // CONSULTAR GALERÍA DE UN NEGOCIO.
@@ -37,6 +38,44 @@ const consultarFotosNegocio = async (req, res) => {
         return res.status(500).json({
             success: false,
             codigo: 'ERROR_CONSULTAR_GALERIA',
+            mensaje: 'No fue posible consultar la galería.'
+        });
+    }
+};
+
+// CONSULTAR GALERÍA PÚBLICA DE UN NEGOCIO.
+const consultarFotosNegocioPublicas = async (req, res) => {
+    try {
+        const { negocioId } = req.params;
+
+        const fotografias = await obtenerFotosNegocioPublicas(
+            negocioId
+        );
+
+        return res.status(200).json({
+            success: true,
+            mensaje: 'Galería pública recuperada correctamente.',
+            total: fotografias.length,
+            fotografias
+        });
+
+    } catch (error) {
+        console.error(
+            'Error al consultar galería pública:',
+            error
+        );
+
+        if (error.codigo === 'NEGOCIO_NO_ENCONTRADO') {
+            return res.status(404).json({
+                success: false,
+                codigo: error.codigo,
+                mensaje: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            codigo: 'ERROR_CONSULTAR_GALERIA_PUBLICA',
             mensaje: 'No fue posible consultar la galería.'
         });
     }
@@ -152,5 +191,6 @@ const quitarFotoNegocio = async (req, res) => {
 module.exports = {
     consultarFotosNegocio,
     agregarFotosNegocio,
-    quitarFotoNegocio
+    quitarFotoNegocio,
+    consultarFotosNegocioPublicas
 };

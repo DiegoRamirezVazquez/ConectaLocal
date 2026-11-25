@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState, useRef } from "react";
-import {MapContainer, TileLayer, Marker, useMapEvents} from "react-leaflet";
+import {MapContainer, TileLayer, Marker, useMapEvents, useMap, CircleMarker, Circle} from "react-leaflet";
 import { useAuth } from "../../context/AuthContext";
-import { obtenerNegociosPublicos } from "../../services/negociosService";
+import { obtenerNegociosPublicos, obtenerNegocioPublico, obtenerFotosNegocioPublicas } from "../../services/negociosService";
 import { conectarEventosForo } from "../../services/tiempoRealService";
 import {
   obtenerPublicaciones,
@@ -20,13 +20,67 @@ import "./InicioUsuario.css";
 import "./foro-estilos.css";
 import L from "leaflet";
 
-// Icono personalizado para los negocios.
-const iconoNegocio = L.divIcon({
-  className: "inicio-marcador-negocio",
-  html: '<div class="marcador-pin"><span>●</span></div>',
-  iconSize: [34, 42],
-  iconAnchor: [17, 42]
-});
+// Crear marcador personalizado con la fotografía del negocio.
+// Escapar texto para utilizarlo de forma segura en el HTML del marcador.
+const escaparHTML = (valor = "") => {
+  return String(valor).replace(/[&<>"']/g, (caracter) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[caracter]);
+};
+
+// Crear marcador con fotografía y categoría del negocio.
+const crearIconoNegocio = (urlImagen, categoria, seleccionado = false) => {
+  const imagen = urlImagen
+    ? `<img
+         src="${escaparHTML(urlImagen)}"
+         class="marcador-foto-negocio"
+         alt=""
+       />`
+    : `<div class="marcador-sin-foto">🏪</div>`;
+
+  const nombreCategoria = escaparHTML(categoria || "NEGOCIO");
+
+  return L.divIcon({
+    className: `inicio-marcador-negocio ${seleccionado ? "marcador-seleccionado" : ""}`,
+    html: `
+      <div class="marcador-contenedor">
+        <div class="marcador-pin-foto">
+          ${imagen}
+        </div>
+
+        <div class="marcador-etiqueta" title="${nombreCategoria}">
+          ${nombreCategoria}
+        </div>
+      </div>
+    `,
+    iconSize: [210, 60],
+    iconAnchor: [25, 55]
+  });
+};
+
+// Calcular la distancia entre dos coordenadas en metros.
+const calcularDistancia = (lat1, lng1, lat2, lng2) => {
+  const radioTierra = 6371000;
+
+  const radianes = (grados) => grados * (Math.PI / 180);
+
+  const diferenciaLatitud = radianes(lat2 - lat1);
+  const diferenciaLongitud = radianes(lng2 - lng1);
+
+  const a =
+    Math.sin(diferenciaLatitud / 2) ** 2 +
+    Math.cos(radianes(lat1)) *
+    Math.cos(radianes(lat2)) *
+    Math.sin(diferenciaLongitud / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return radioTierra * c;
+};
 
 // Cerrar la ficha al pulsar sobre el mapa.
 const EventosMapa = ({ alPulsarMapa }) => {
@@ -36,6 +90,74 @@ const EventosMapa = ({ alPulsarMapa }) => {
 
   return null;
 };
+
+// Mover el mapa a la ubicación actual del dispositivo.
+const CentrarMapaUsuario = ({ ubicacionUsuario }) => {
+  const mapa = useMap();
+
+  useEffect(() => {
+    if (ubicacionUsuario) {
+      mapa.setView(ubicacionUsuario, 15, {
+        animate: true
+      });
+    }
+  }, [ubicacionUsuario, mapa]);
+
+  return null;
+};
+
+// Ajustar el zoom conforme aumenta el radio de búsqueda.
+// Se utiliza setView en lugar de crear una capa temporal y llamar fitBounds,
+// evitando errores de Leaflet durante los cambios rápidos de la animación.
+const AjustarVistaRadio = ({ ubicacionUsuario, radioBusquedaKm, activo }) => {
+  const mapa = useMap();
+
+  useEffect(() => {
+    if (!activo || !ubicacionUsuario || !mapa) return;
+
+    const radio = Math.max(1, Number(radioBusquedaKm) || 1);
+
+    // Cada kilómetro adicional aleja progresivamente la vista.
+    // El zoom se limita para evitar acercamientos o alejamientos extremos.
+    const zoom = Math.max(9, Math.min(14, 14 - Math.log2(radio)));
+
+    mapa.setView(ubicacionUsuario, zoom, {
+      animate: true,
+      duration: 0.8
+    });
+  }, [ubicacionUsuario, radioBusquedaKm, activo, mapa]);
+
+  return null;
+};
+
+
+// Centrar mapa
+const BotonCentrarMapa = ({ ubicacionUsuario }) => {
+  const mapa = useMap();
+
+  if (!ubicacionUsuario) return null;
+
+  const centrarUbicacion = (e) => {
+    e.stopPropagation();
+
+    mapa.setView(ubicacionUsuario, 15, {
+      animate: true
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      className="boton-centrar-mapa"
+      onClick={centrarUbicacion}
+      title="Volver a mi ubicación"
+      aria-label="Volver a mi ubicación"
+    >
+      <span>◎</span>
+    </button>
+  );
+};
+
 
 // Formatear la fecha de publicación.
 const formatearFecha = (fecha) => {
@@ -75,6 +197,18 @@ const InicioUsuario = () => {
 
   const [negocios, setNegocios] = useState([]);
   const [negocioSeleccionado, setNegocioSeleccionado] = useState(null);
+  const [cargandoFichaNegocio, setCargandoFichaNegocio] = useState(false);
+  const [errorFichaNegocio, setErrorFichaNegocio] = useState("");
+  const [fotografiasNegocio, setFotografiasNegocio] = useState([]);
+  const [cargandoGaleriaNegocio, setCargandoGaleriaNegocio] = useState(false);
+  const [imagenAmpliada, setImagenAmpliada] = useState(null);
+  const solicitudFichaRef = useRef(0);
+  const [ubicacionUsuario, setUbicacionUsuario] = useState(null);
+  const [errorUbicacion, setErrorUbicacion] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
+  const [radioBusquedaKm, setRadioBusquedaKm] = useState(1);
+  const [buscandoNegocios, setBuscandoNegocios] = useState(false);
+  const [radioVisible, setRadioVisible] = useState(false);
 
   const [publicaciones, setPublicaciones] = useState([]);
   const [reaccionesEnProceso, setReaccionesEnProceso] = useState(new Set());
@@ -114,7 +248,37 @@ const InicioUsuario = () => {
 
   const formularioRef = useRef(null);
 
-  // Retirar los avisos de la interfaz después de un tiempo real.
+  // Obtener la ubicación actual del dispositivo.
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setErrorUbicacion("Tu dispositivo no permite obtener la ubicación.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (posicion) => {
+        setUbicacionUsuario([
+          posicion.coords.latitude,
+          posicion.coords.longitude
+        ]);
+
+        setErrorUbicacion("");
+      },
+      (error) => {
+        console.warn("No se pudo obtener la ubicación:", error.message);
+
+        setErrorUbicacion(
+          "No fue posible obtener tu ubicación. Puedes habilitar el permiso."
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000
+      }
+    );
+  }, []);
+
   // Al limpiar el estado, React desmonta el elemento y también libera su espacio.
   useEffect(() => {
     if (!errorForo) return undefined;
@@ -713,6 +877,130 @@ const InicioUsuario = () => {
     });
   }, [negocios]);
 
+  // Obtener categorías únicas de los negocios registrados.
+  const categoriasDisponibles = useMemo(() => {
+    return [
+      ...new Set(
+        negociosConUbicacion
+          .map((negocio) => negocio.categoria?.nombre)
+          .filter(Boolean)
+      )
+    ].sort((a, b) => a.localeCompare(b, "es"));
+  }, [negociosConUbicacion]);
+
+
+  // Negocios que pertenecen a la categoría seleccionada.
+  const negociosDeCategoria = useMemo(() => {
+    if (!categoriaSeleccionada) return negociosConUbicacion;
+
+    return negociosConUbicacion.filter(
+      (negocio) => negocio.categoria?.nombre === categoriaSeleccionada
+    );
+  }, [negociosConUbicacion, categoriaSeleccionada]);
+
+  // Buscar por categoría con una animación de tres pulsos por cada radio.
+  // Si no hay al menos 3 negocios, ampliar un kilómetro y repetir.
+  useEffect(() => {
+    if (!categoriaSeleccionada) {
+      setRadioBusquedaKm(1);
+      setBuscandoNegocios(false);
+      setRadioVisible(false);
+      return undefined;
+    }
+
+    if (!ubicacionUsuario) {
+      setRadioBusquedaKm(1);
+      setBuscandoNegocios(false);
+      setRadioVisible(false);
+      return undefined;
+    }
+
+    let cancelado = false;
+    let temporizador = null;
+    let radioActual = 1;
+    const duracionCiclo = 950;
+    const pausasEntreRadios = 300;
+
+    setRadioBusquedaKm(1);
+    setRadioVisible(true);
+    setBuscandoNegocios(true);
+
+    const contarNegociosEnRadio = (radioKm) => {
+      const [latUsuario, lngUsuario] = ubicacionUsuario;
+
+      return negociosDeCategoria.filter((negocio) => {
+        const distancia = calcularDistancia(
+          latUsuario,
+          lngUsuario,
+          Number(negocio.lat),
+          Number(negocio.lng)
+        );
+        return distancia <= radioKm * 1000;
+      }).length;
+    };
+
+    // El círculo permanece visible y respira con un brillo suave.
+    // Después de tres ciclos de iluminación se evalúa el siguiente radio.
+    const ejecutarCiclos = (cicloActual = 0) => {
+      if (cancelado) return;
+
+      if (cicloActual >= 3) {
+        const totalEncontrado = contarNegociosEnRadio(radioActual);
+
+        if (totalEncontrado >= 3 || radioActual >= 10) {
+          setRadioVisible(true);
+          setBuscandoNegocios(false);
+          return;
+        }
+
+        radioActual += 1;
+        setRadioBusquedaKm(radioActual);
+        setRadioVisible(true);
+
+        temporizador = setTimeout(() => {
+          ejecutarCiclos(0);
+        }, pausasEntreRadios);
+        return;
+      }
+
+      temporizador = setTimeout(() => {
+        ejecutarCiclos(cicloActual + 1);
+      }, duracionCiclo);
+    };
+
+    ejecutarCiclos(0);
+
+    return () => {
+      cancelado = true;
+      if (temporizador) clearTimeout(temporizador);
+    };
+  }, [categoriaSeleccionada, ubicacionUsuario, negociosDeCategoria]);
+
+  // Sin filtro se muestran todos los negocios. Con filtro, solo los de la
+  // categoría elegida que estén dentro del radio progresivo calculado.
+  const negociosFiltrados = useMemo(() => {
+    if (!categoriaSeleccionada) return negociosConUbicacion;
+    if (!ubicacionUsuario) return [];
+
+    const [latUsuario, lngUsuario] = ubicacionUsuario;
+
+    return negociosDeCategoria.filter((negocio) => {
+      const distancia = calcularDistancia(
+        latUsuario,
+        lngUsuario,
+        Number(negocio.lat),
+        Number(negocio.lng)
+      );
+      return distancia <= radioBusquedaKm * 1000;
+    });
+  }, [
+    negociosConUbicacion,
+    negociosDeCategoria,
+    categoriaSeleccionada,
+    ubicacionUsuario,
+    radioBusquedaKm
+  ]);
+
   // Centrar el mapa en los negocios registrados.
   const centroMapa = useMemo(() => {
     if (negociosConUbicacion.length === 0) {
@@ -735,8 +1023,162 @@ const InicioUsuario = () => {
     ];
   }, [negociosConUbicacion]);
 
+  // Abrir la ficha y cargar perfil completo y galería pública.
+  const manejarSeleccionNegocio = async (negocio) => {
+    const solicitudActual = ++solicitudFichaRef.current;
+
+    setNegocioSeleccionado(negocio);
+    setCargandoFichaNegocio(true);
+    setCargandoGaleriaNegocio(true);
+    setErrorFichaNegocio("");
+    setFotografiasNegocio([]);
+    setImagenAmpliada(null);
+
+    const cargarPerfil = obtenerNegocioPublico(negocio.id)
+      .then((detalle) => {
+        if (solicitudActual !== solicitudFichaRef.current) return;
+        if (detalle) {
+          setNegocioSeleccionado((actual) =>
+            actual?.id === negocio.id ? { ...actual, ...detalle } : actual
+          );
+        }
+      })
+      .catch((error) => {
+        if (solicitudActual !== solicitudFichaRef.current) return;
+        console.error("Error al consultar el perfil público del negocio:", error);
+        setErrorFichaNegocio(
+          error.message || "No fue posible cargar toda la información del negocio."
+        );
+      })
+      .finally(() => {
+        if (solicitudActual === solicitudFichaRef.current) {
+          setCargandoFichaNegocio(false);
+        }
+      });
+
+    const cargarGaleria = obtenerFotosNegocioPublicas(negocio.id)
+      .then((fotografias) => {
+        if (solicitudActual !== solicitudFichaRef.current) return;
+        setFotografiasNegocio(Array.isArray(fotografias) ? fotografias : []);
+      })
+      .catch((error) => {
+        if (solicitudActual !== solicitudFichaRef.current) return;
+        console.error("Error al consultar la galería pública:", error);
+        setFotografiasNegocio([]);
+      })
+      .finally(() => {
+        if (solicitudActual === solicitudFichaRef.current) {
+          setCargandoGaleriaNegocio(false);
+        }
+      });
+
+    await Promise.allSettled([cargarPerfil, cargarGaleria]);
+  };
+
+  const cerrarFichaNegocio = () => {
+    solicitudFichaRef.current += 1;
+    setNegocioSeleccionado(null);
+    setCargandoFichaNegocio(false);
+    setCargandoGaleriaNegocio(false);
+    setErrorFichaNegocio("");
+    setFotografiasNegocio([]);
+    setImagenAmpliada(null);
+  };
+
   return (
     <div className="inicio-usuario">
+      {imagenAmpliada && (
+        <div
+          className="ficha-imagen-lightbox"
+          onClick={() => setImagenAmpliada(null)}
+          role="presentation"
+          style={{ position: "fixed", inset: 0, zIndex: 3000, background: "rgba(8,20,24,.88)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+        >
+          <button
+            type="button"
+            onClick={() => setImagenAmpliada(null)}
+            aria-label="Cerrar fotografía"
+            style={{ position: "absolute", top: 20, right: 24, border: 0, borderRadius: "50%", width: 42, height: 42, fontSize: 25, cursor: "pointer" }}
+          >×</button>
+          <img
+            src={imagenAmpliada.url}
+            alt={imagenAmpliada.descripcion || "Fotografía del negocio"}
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: "min(100%, 1100px)", maxHeight: "85vh", objectFit: "contain", borderRadius: 12 }}
+          />
+        </div>
+      )}
+      <style>{`
+        .ficha-negocio-contenido { padding: 24px 26px 30px; }
+        .ficha-negocio-encabezado { padding-bottom: 20px; }
+        .ficha-negocio-encabezado h2 { margin: 12px 0 8px; color: #123b43; font-size: 27px; }
+        .ficha-negocio-descripcion { margin: 0; color: #647780; line-height: 1.65; }
+        .ficha-seccion { padding: 20px 0; border-top: 1px solid #e6edef; }
+        .ficha-seccion h3 { margin: 0 0 14px; color: #173f47; font-size: 16px; display: flex; align-items: center; gap: 9px; }
+        .ficha-seccion h3 span { color: #238b83; font-size: 20px; }
+        .ficha-grid-contacto { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .ficha-dato { display: flex; align-items: center; gap: 11px; min-width: 0; padding: 12px; border: 1px solid #e5edef; border-radius: 12px; color: inherit; text-decoration: none; background: #fbfdfd; }
+        .ficha-dato:hover { border-color: #9ccbc7; background: #f3faf9; }
+        .ficha-dato-icono { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: 10px; background: #e8f4f1; color: #167c73; font-size: 18px; }
+        .ficha-dato small, .ficha-ubicacion-dato small { display: block; margin-bottom: 3px; color: #71848a; font-size: 11px; }
+        .ficha-dato strong, .ficha-ubicacion-dato strong { display: block; overflow-wrap: anywhere; color: #24454c; font-size: 13px; font-weight: 600; }
+        .ficha-ubicacion-dato { margin: 0 0 12px; }
+        .ficha-enlace-mapa { display: inline-flex; padding: 9px 13px; border-radius: 9px; background: #eaf4f3; color: #14766f; text-decoration: none; font-size: 13px; font-weight: 600; }
+        .ficha-horario { padding: 13px 15px; border-radius: 11px; background: #f7faf9; color: #425c62; white-space: pre-line; line-height: 1.6; }
+        .ficha-galeria-encabezado { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .ficha-galeria-encabezado h3 { margin-bottom: 3px; }
+        .ficha-galeria-encabezado small { color: #788b90; }
+        .ficha-galeria-total { padding: 5px 9px; border-radius: 20px; background: #e8f3f0; color: #276d65; font-size: 11px; font-weight: 600; }
+        .ficha-galeria-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .ficha-galeria-foto { position: relative; display: block; padding: 0; overflow: hidden; border: 0; border-radius: 12px; background: #edf2f1; cursor: zoom-in; text-align: left; }
+        .ficha-galeria-foto img { display: block; width: 100%; height: 155px; object-fit: cover; transition: transform .25s ease; }
+        .ficha-galeria-foto:hover img { transform: scale(1.04); }
+        .ficha-galeria-foto span { display: block; padding: 7px 9px; color: #496168; font-size: 11px; background: #fff; }
+        .ficha-sin-datos { color: #829196; font-size: 13px; }
+        .ficha-fecha-registro { margin: 4px 0 0; padding-top: 14px; border-top: 1px solid #e6edef; color: #89989c; font-size: 11px; }
+        @media (max-width: 600px) {
+          .ficha-negocio-contenido { padding: 20px 17px 25px; }
+          .ficha-grid-contacto { grid-template-columns: 1fr; }
+          .ficha-galeria-foto img { height: 125px; }
+        }
+        .inicio-busqueda-indicador {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          flex: 0 0 auto;
+          padding: 7px 11px;
+          border-radius: 999px;
+          background: #eef6ff;
+          color: #2469ad;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+        .inicio-busqueda-punto {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #2585e8;
+        }
+        .inicio-busqueda-indicador.activo .inicio-busqueda-punto {
+          animation: punto-cargando 1.1s ease-in-out infinite;
+        }
+        .radio-buscando {
+          animation: radio-respirando 1.9s ease-in-out infinite;
+          transform-origin: center;
+        }
+        .radio-encontrado {
+          filter: drop-shadow(0 0 3px rgba(37,133,232,.45));
+        }
+        @keyframes radio-respirando {
+          0%, 100% { stroke-opacity: .58; fill-opacity: .045; }
+          50% { stroke-opacity: 1; fill-opacity: .16; }
+        }
+        @keyframes punto-cargando {
+          0%, 100% { opacity: .45; transform: scale(.85); }
+          50% { opacity: 1; transform: scale(1.25); }
+        }
+      `}</style>
 
       {/* ENCABEZADO */}
       <header className="inicio-encabezado">
@@ -762,7 +1204,7 @@ const InicioUsuario = () => {
               <button
                 type="button"
                 className="inicio-cerrar-ficha"
-                onClick={() => setNegocioSeleccionado(null)}
+                onClick={cerrarFichaNegocio}
                 aria-label="Cerrar ficha del negocio"
               >
                 ×
@@ -780,67 +1222,146 @@ const InicioUsuario = () => {
                 </div>
               )}
 
-              <div className="inicio-datos-negocio">
-                <span className="inicio-categoria">
-                  {negocioSeleccionado.categoria?.nombre || "Sin categoría"}
-                </span>
-
-                <h2>{negocioSeleccionado.nombre}</h2>
-
-                <p>{negocioSeleccionado.descripcion}</p>
-
-                {negocioSeleccionado.direccion && (
-                  <p>
-                    <strong>Dirección:</strong>{" "}
-                    {negocioSeleccionado.direccion}
-                  </p>
+              <div className="inicio-datos-negocio ficha-negocio-contenido">
+                {cargandoFichaNegocio && (
+                  <div className="inicio-cargando-ficha" role="status">
+                    Cargando información del negocio...
+                  </div>
                 )}
 
-                {negocioSeleccionado.telefono && (
-                  <p>
-                    <strong>Teléfono:</strong>{" "}
-                    {negocioSeleccionado.telefono}
-                  </p>
+                {errorFichaNegocio && (
+                  <div className="inicio-error-ficha" role="alert">
+                    {errorFichaNegocio}
+                  </div>
                 )}
 
-                {negocioSeleccionado.whatsapp && (
-                  <p>
-                    <strong>WhatsApp:</strong>{" "}
-                    {negocioSeleccionado.whatsapp}
-                  </p>
-                )}
+                <header className="ficha-negocio-encabezado">
+                  <span className="inicio-categoria">
+                    {negocioSeleccionado.categoria?.nombre || "Sin categoría"}
+                  </span>
+                  <h2>{negocioSeleccionado.nombre}</h2>
+                  {negocioSeleccionado.descripcion && (
+                    <p className="ficha-negocio-descripcion">
+                      {negocioSeleccionado.descripcion}
+                    </p>
+                  )}
+                </header>
 
-                {negocioSeleccionado.email && (
-                  <p>
-                    <strong>Correo:</strong>{" "}
-                    {negocioSeleccionado.email}
-                  </p>
-                )}
+                <section className="ficha-seccion">
+                  <h3><span>☎</span> Contacto</h3>
+                  <div className="ficha-grid-contacto">
+                    {negocioSeleccionado.telefono && (
+                      <a className="ficha-dato" href={`tel:${negocioSeleccionado.telefono}`}>
+                        <span className="ficha-dato-icono">☎</span>
+                        <span><small>Teléfono</small><strong>{negocioSeleccionado.telefono}</strong></span>
+                      </a>
+                    )}
+                    {negocioSeleccionado.whatsapp && (
+                      <a
+                        className="ficha-dato"
+                        href={`https://wa.me/${String(negocioSeleccionado.whatsapp).replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <span className="ficha-dato-icono">✆</span>
+                        <span><small>WhatsApp</small><strong>{negocioSeleccionado.whatsapp}</strong></span>
+                      </a>
+                    )}
+                    {negocioSeleccionado.email && (
+                      <a className="ficha-dato" href={`mailto:${negocioSeleccionado.email}`}>
+                        <span className="ficha-dato-icono">✉</span>
+                        <span><small>Correo electrónico</small><strong>{negocioSeleccionado.email}</strong></span>
+                      </a>
+                    )}
+                    {negocioSeleccionado.sitio_web && (
+                      <a
+                        className="ficha-dato"
+                        href={/^https?:\/\//i.test(negocioSeleccionado.sitio_web) ? negocioSeleccionado.sitio_web : `https://${negocioSeleccionado.sitio_web}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <span className="ficha-dato-icono">↗</span>
+                        <span><small>Sitio web</small><strong>Visitar página</strong></span>
+                      </a>
+                    )}
+                    {!negocioSeleccionado.telefono && !negocioSeleccionado.whatsapp &&
+                     !negocioSeleccionado.email && !negocioSeleccionado.sitio_web && (
+                      <p className="ficha-sin-datos">Este negocio aún no ha agregado medios de contacto.</p>
+                    )}
+                  </div>
+                </section>
 
-                {negocioSeleccionado.sitio_web && (
-                  <p>
-                    <strong>Sitio web:</strong>{" "}
-                    <a
-                      href={negocioSeleccionado.sitio_web}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Visitar sitio
-                    </a>
-                  </p>
-                )}
+                <section className="ficha-seccion">
+                  <h3><span>⌖</span> Ubicación</h3>
+                  {negocioSeleccionado.direccion && (
+                    <div className="ficha-ubicacion-dato">
+                      <small>Dirección</small>
+                      <strong>{negocioSeleccionado.direccion}</strong>
+                    </div>
+                  )}
+                  <div className="ficha-ubicacion-dato">
+                    <small>Coordenadas</small>
+                    <strong>{negocioSeleccionado.lat}, {negocioSeleccionado.lng}</strong>
+                  </div>
+                  <a
+                    className="ficha-enlace-mapa"
+                    href={`https://www.google.com/maps?q=${negocioSeleccionado.lat},${negocioSeleccionado.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Ver ubicación en Google Maps ↗
+                  </a>
+                </section>
 
                 {negocioSeleccionado.horario && (
-                  <p>
-                    <strong>Horario:</strong>{" "}
-                    {negocioSeleccionado.horario}
-                  </p>
+                  <section className="ficha-seccion">
+                    <h3><span>◷</span> Horarios de atención</h3>
+                    <div className="ficha-horario">{negocioSeleccionado.horario}</div>
+                  </section>
                 )}
 
-                <p className="inicio-coordenadas">
-                  <strong>Ubicación:</strong>{" "}
-                  {negocioSeleccionado.lat}, {negocioSeleccionado.lng}
-                </p>
+                <section className="ficha-seccion ficha-galeria">
+                  <div className="ficha-galeria-encabezado">
+                    <div>
+                      <h3><span>▧</span> Galería de fotografías</h3>
+                      <small>Conoce más de este negocio</small>
+                    </div>
+                    {fotografiasNegocio.length > 0 && (
+                      <span className="ficha-galeria-total">{fotografiasNegocio.length} fotos</span>
+                    )}
+                  </div>
+
+                  {cargandoGaleriaNegocio ? (
+                    <p className="ficha-sin-datos">Cargando fotografías...</p>
+                  ) : fotografiasNegocio.length > 0 ? (
+                    <div className="ficha-galeria-grid">
+                      {fotografiasNegocio.map((foto) => (
+                        <button
+                          type="button"
+                          className="ficha-galeria-foto"
+                          key={foto.id}
+                          onClick={() => setImagenAmpliada(foto)}
+                          aria-label="Ampliar fotografía"
+                        >
+                          <img src={foto.url} alt={foto.descripcion || `Fotografía de ${negocioSeleccionado.nombre}`} />
+                          {foto.descripcion && <span>{foto.descripcion}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="ficha-sin-datos">Este negocio todavía no tiene fotografías adicionales.</p>
+                  )}
+                </section>
+
+                {negocioSeleccionado.creado_en && (
+                  <p className="ficha-fecha-registro">
+                    Negocio registrado el {new Date(negocioSeleccionado.creado_en).toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric"
+                    })}
+                  </p>
+                )}
               </div>
             </article>
           ) : (
@@ -1264,8 +1785,45 @@ const InicioUsuario = () => {
             </div>
 
             <span className="inicio-total-negocios">
-              {negociosConUbicacion.length} negocios
+              {negociosFiltrados.length} negocios
             </span>
+          </div>
+
+          {/* FILTRO POR CATEGORÍA */}
+          <div className="buscador-servicios">
+            <select
+              value={categoriaSeleccionada}
+              onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+            >
+              <option value="">Todas las categorías</option>
+
+              {categoriasDisponibles.map((categoria) => (
+                <option key={categoria} value={categoria}>
+                  {categoria}
+                </option>
+              ))}
+            </select>
+
+            {categoriaSeleccionada && (
+              <button
+                type="button"
+                onClick={() => setCategoriaSeleccionada("")}
+              >
+                Limpiar filtro
+              </button>
+            )}
+
+            {categoriaSeleccionada && ubicacionUsuario && (
+              <span
+                className={`inicio-busqueda-indicador ${buscandoNegocios ? "activo" : ""}`}
+                aria-live="polite"
+              >
+                <span className="inicio-busqueda-punto" />
+                {buscandoNegocios
+                  ? `Explorando ${radioBusquedaKm} km`
+                  : `${negociosFiltrados.length} negocios · ${radioBusquedaKm} km`}
+              </span>
+            )}
           </div>
 
           {cargando ? (
@@ -1278,8 +1836,8 @@ const InicioUsuario = () => {
             </div>
           ) : (
             <MapContainer
-              center={centroMapa}
-              zoom={13}
+              center={ubicacionUsuario || centroMapa}
+              zoom={ubicacionUsuario ? 15 : 13}
               className="inicio-mapa"
               scrollWheelZoom={true}
             >
@@ -1289,21 +1847,63 @@ const InicioUsuario = () => {
               />
 
               <EventosMapa
-                alPulsarMapa={() => setNegocioSeleccionado(null)}
+                alPulsarMapa={cerrarFichaNegocio}
               />
 
-              {negociosConUbicacion.map((negocio) => (
+              <CentrarMapaUsuario ubicacionUsuario={ubicacionUsuario} />
+              <BotonCentrarMapa ubicacionUsuario={ubicacionUsuario} />
+              <AjustarVistaRadio
+                ubicacionUsuario={ubicacionUsuario}
+                radioBusquedaKm={radioBusquedaKm}
+                activo={Boolean(categoriaSeleccionada)}
+              />
+
+              {categoriaSeleccionada && ubicacionUsuario && radioVisible && (
+                <Circle
+                  center={ubicacionUsuario}
+                  radius={radioBusquedaKm * 1000}
+                  pathOptions={{
+                    className: buscandoNegocios ? "radio-buscando" : "radio-encontrado",
+                    color: "#2585e8",
+                    weight: buscandoNegocios ? 3 : 2,
+                    fillColor: "#2585e8",
+                    fillOpacity: buscandoNegocios ? 0.10 : 0.07
+                  }}
+                  interactive={false}
+                />
+              )}
+
+              {ubicacionUsuario && (
+                <CircleMarker
+                  center={ubicacionUsuario}
+                  radius={9}
+                  pathOptions={{
+                    color: "#ffffff",
+                    weight: 3,
+                    fillColor: "#2585e8",
+                    fillOpacity: 1
+                  }}
+                  interactive={false}
+                />
+              )}
+
+              {negociosFiltrados.map((negocio) => (
                 <Marker
                   key={negocio.id}
                   position={[
                     Number(negocio.lat),
                     Number(negocio.lng)
                   ]}
-                  icon={iconoNegocio}
+                  icon={crearIconoNegocio(
+                    negocio.foto_principal_url,
+                    negocio.categoria?.nombre,
+                    negocioSeleccionado?.id === negocio.id
+                  )}
+                  zIndexOffset={negocioSeleccionado?.id === negocio.id ? 1000 : 0}
                   eventHandlers={{
                     click: (evento) => {
                       evento.originalEvent?.stopPropagation();
-                      setNegocioSeleccionado(negocio);
+                      manejarSeleccionNegocio(negocio);
                     }
                   }}
                 />
@@ -1311,9 +1911,15 @@ const InicioUsuario = () => {
             </MapContainer>
           )}
 
-          {!cargando && !error && negociosConUbicacion.length === 0 && (
+          {!cargando && !error && negociosFiltrados.length === 0 && (
             <p className="inicio-sin-negocios">
-              Todavía no hay negocios con ubicación registrada.
+              {categoriaSeleccionada
+                ? !ubicacionUsuario
+                  ? "Necesitamos tu ubicación para buscar negocios cercanos."
+                  : buscandoNegocios
+                    ? "Buscando negocios dentro de un radio cada vez mayor..."
+                    : `No encontramos negocios de esta categoría en un radio de ${radioBusquedaKm} km.`
+                : "No hay negocios registrados con coordenadas válidas."}
             </p>
           )}
         </section>

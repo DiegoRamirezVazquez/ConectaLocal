@@ -48,3 +48,27 @@ export const obtenerNegocioPublico = async (negocioId) => {
 
     return data.negocio;
 };
+
+// CONSULTAR GALERÍA PÚBLICA DE UN NEGOCIO.
+export const obtenerFotosNegocioPublicas = async (negocioId) => {
+    const response = await fetch(
+        `${API_URL}/negocios/${negocioId}/fotografias/publicas`,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json'
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.mensaje ||
+            'No fue posible consultar las fotografías del negocio.'
+        );
+    }
+
+    return data.fotografias || [];
+};

@@ -13,6 +13,7 @@ const fotosNegocioRoutes = require('./routes/fotosNegocioRoutes');
 const mensajesRoutes = require('./routes/mensajesRoutes');
 const publicacionesRoutes = require('./routes/publicacionesRoutes');
 const eventosRoutes = require('./routes/eventosRoutes');
+const resenasRoutes = require('./routes/resenasRoutes');
 
 const app = express();
 
@@ -67,6 +68,8 @@ app.use('/api/v1/mensajes', mensajesRoutes);
 app.use('/api/v1/publicaciones', publicacionesRoutes);
 // 10. Rutas de eventos del trabajador.
 app.use('/api/v1/eventos', eventosRoutes);
+// 11. Rutas para las reseñas de negocios.
+app.use('/api/v1/resenas', resenasRoutes);
 
 // Ruta inicial.
 app.get('/api/v1/', (req, res) => {

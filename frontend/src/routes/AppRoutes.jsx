@@ -14,6 +14,7 @@ import DetalleSolicitud from '../pages/administrador/DetalleSolicitud';
 
 import InicioUsuario from '../pages/usuario/InicioUsuario';
 import UsuarioLayout from '../components/usuario/UsuarioLayout';
+import Recomendaciones from '../pages/usuario/Recomendaciones';
 
 const getHomePath = (user) => {
     switch (user?.rol) {
@@ -103,7 +104,7 @@ const AppRoutes = () => {
 
                 <Route
                     path="recomendaciones"
-                    element={<h1>Recomendaciones - Próximamente</h1>}
+                    element={<Recomendaciones />}
                 />
 
                 <Route

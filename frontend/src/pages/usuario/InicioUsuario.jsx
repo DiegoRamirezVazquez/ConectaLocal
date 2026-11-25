@@ -1,7 +1,17 @@
-import {useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {MapContainer, TileLayer, Marker, useMapEvents, useMap, CircleMarker, Circle} from "react-leaflet";
 import { useAuth } from "../../context/AuthContext";
-import { obtenerNegociosPublicos, obtenerNegocioPublico, obtenerFotosNegocioPublicas } from "../../services/negociosService";
+import {
+  obtenerNegociosPublicos,
+  obtenerNegocioPublico,
+  obtenerFotosNegocioPublicas,
+  obtenerResenasDestacadas,
+  obtenerResenaPropia,
+  publicarResena,
+  actualizarResena,
+  eliminarResena
+} from "../../services/negociosService";
 import { conectarEventosForo } from "../../services/tiempoRealService";
 import {
   obtenerPublicaciones,
@@ -19,6 +29,7 @@ import "leaflet/dist/leaflet.css";
 import "./InicioUsuario.css";
 import "./foro-estilos.css";
 import L from "leaflet";
+
 
 // Crear marcador personalizado con la fotografía del negocio.
 // Escapar texto para utilizarlo de forma segura en el HTML del marcador.
@@ -191,6 +202,7 @@ const obtenerNombreTipo = (tipo) => {
 
 const InicioUsuario = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const inicialUsuario =
     user?.nombre?.trim()?.charAt(0).toUpperCase() || "?";
@@ -201,6 +213,33 @@ const InicioUsuario = () => {
   const [errorFichaNegocio, setErrorFichaNegocio] = useState("");
   const [fotografiasNegocio, setFotografiasNegocio] = useState([]);
   const [cargandoGaleriaNegocio, setCargandoGaleriaNegocio] = useState(false);
+
+  const [resenasNegocio, setResenasNegocio] = useState({
+    total: 0,
+    promedio: 0,
+    destacadas: {
+      cinco_estrellas: null,
+      intermedia: null,
+      una_estrella: null
+    }
+  });
+
+  const [cargandoResenas, setCargandoResenas] = useState(false);
+  const [errorResenas, setErrorResenas] = useState("");
+
+
+  // RESEÑA PROPIA DEL USUARIO.
+const [miResena, setMiResena] = useState(null);
+const [cargandoMiResena, setCargandoMiResena] = useState(false);
+
+// FORMULARIO DE RESEÑAS.
+const [estrellasResena, setEstrellasResena] = useState(5);
+const [comentarioResena, setComentarioResena] = useState("");
+const [editandoResena, setEditandoResena] = useState(false);
+const [guardandoResena, setGuardandoResena] = useState(false);
+const [errorMiResena, setErrorMiResena] = useState("");
+const [mensajeMiResena, setMensajeMiResena] = useState("");
+
   const [imagenAmpliada, setImagenAmpliada] = useState(null);
   const solicitudFichaRef = useRef(0);
   const [ubicacionUsuario, setUbicacionUsuario] = useState(null);
@@ -247,6 +286,17 @@ const InicioUsuario = () => {
   const [fotografiasSeleccionadas, setFotografiasSeleccionadas] = useState([]);
 
   const formularioRef = useRef(null);
+
+  // NAVEGAR A TODAS LAS RESEÑAS DEL NEGOCIO SELECCIONADO.
+const manejarVerMasResenas = () => {
+  if (!negocioSeleccionado?.id) return;
+
+  navigate("/recomendaciones", {
+    state: {
+      negocioId: negocioSeleccionado.id
+    }
+  });
+};
 
   // Obtener la ubicación actual del dispositivo.
   useEffect(() => {
@@ -1024,7 +1074,7 @@ const InicioUsuario = () => {
   }, [negociosConUbicacion]);
 
   // Abrir la ficha y cargar perfil completo y galería pública.
-  const manejarSeleccionNegocio = async (negocio) => {
+    const manejarSeleccionNegocio = async (negocio) => {
     const solicitudActual = ++solicitudFichaRef.current;
 
     setNegocioSeleccionado(negocio);
@@ -1033,6 +1083,28 @@ const InicioUsuario = () => {
     setErrorFichaNegocio("");
     setFotografiasNegocio([]);
     setImagenAmpliada(null);
+
+    // Reiniciar los datos de la reseña propia.
+    setMiResena(null);
+    setCargandoMiResena(Boolean(user?.id));
+    setEstrellasResena(5);
+    setComentarioResena("");
+    setEditandoResena(false);
+    setErrorMiResena("");
+    setMensajeMiResena("");
+
+    setResenasNegocio({
+      total: 0,
+      promedio: 0,
+      destacadas: {
+        cinco_estrellas: null,
+        intermedia: null,
+        una_estrella: null
+      }
+    });
+
+    setCargandoResenas(true);
+    setErrorResenas("");
 
     const cargarPerfil = obtenerNegocioPublico(negocio.id)
       .then((detalle) => {
@@ -1072,17 +1144,220 @@ const InicioUsuario = () => {
         }
       });
 
-    await Promise.allSettled([cargarPerfil, cargarGaleria]);
+      const cargarResenas = obtenerResenasDestacadas(negocio.id)
+      .then((resultado) => {
+        if (solicitudActual !== solicitudFichaRef.current) return;
+
+        setResenasNegocio(resultado);
+      })
+      .catch((error) => {
+        if (solicitudActual !== solicitudFichaRef.current) return;
+
+        console.error("Error al consultar las reseñas:", error);
+        setErrorResenas(
+          error.message || "No fue posible cargar las reseñas."
+        );
+      })
+      .finally(() => {
+        if (solicitudActual === solicitudFichaRef.current) {
+          setCargandoResenas(false);
+        }
+      });
+
+
+    // Consultar la reseña propia únicamente si hay una sesión iniciada.
+    const cargarMiResena = user?.id
+      ? obtenerResenaPropia(negocio.id)
+          .then((resena) => {
+            if (solicitudActual !== solicitudFichaRef.current) return;
+
+            setMiResena(resena || null);
+            setEstrellasResena(resena?.estrellas || 5);
+            setComentarioResena(resena?.comentario || "");
+          })
+          .catch((error) => {
+            if (solicitudActual !== solicitudFichaRef.current) return;
+
+            console.error("Error al consultar tu reseña:", error);
+            setErrorMiResena(
+              error.message || "No fue posible consultar tu reseña."
+            );
+          })
+          .finally(() => {
+            if (solicitudActual === solicitudFichaRef.current) {
+              setCargandoMiResena(false);
+            }
+          })
+      : Promise.resolve();
+
+    await Promise.allSettled([
+      cargarPerfil,
+      cargarGaleria,
+      cargarResenas,
+      cargarMiResena
+    ]);
   };
 
   const cerrarFichaNegocio = () => {
     solicitudFichaRef.current += 1;
+
     setNegocioSeleccionado(null);
     setCargandoFichaNegocio(false);
     setCargandoGaleriaNegocio(false);
     setErrorFichaNegocio("");
     setFotografiasNegocio([]);
+
+    setResenasNegocio({
+      total: 0,
+      promedio: 0,
+      destacadas: {
+        cinco_estrellas: null,
+        intermedia: null,
+        una_estrella: null
+      }
+    });
+
+    setCargandoResenas(false);
+    setErrorResenas("");
+
+    // LIMPIAR LA RESEÑA PROPIA DEL USUARIO.
+    setMiResena(null);
+    setCargandoMiResena(false);
+
+    // LIMPIAR EL FORMULARIO DE RESEÑAS.
+    setEstrellasResena(5);
+    setComentarioResena("");
+    setEditandoResena(false);
+    setGuardandoResena(false);
+    setErrorMiResena("");
+    setMensajeMiResena("");
+
     setImagenAmpliada(null);
+  };
+
+    // GUARDAR UNA RESEÑA NUEVA O ACTUALIZAR LA EXISTENTE.
+  const manejarGuardarResena = async () => {
+    if (!user?.id) {
+      setErrorMiResena("Debes iniciar sesión para publicar una reseña.");
+      return;
+    }
+
+    if (!negocioSeleccionado?.id) {
+      setErrorMiResena("No se ha seleccionado un negocio.");
+      return;
+    }
+
+    if (!estrellasResena || estrellasResena < 1 || estrellasResena > 5) {
+      setErrorMiResena("Selecciona una calificación de 1 a 5 estrellas.");
+      return;
+    }
+
+    setGuardandoResena(true);
+    setErrorMiResena("");
+    setMensajeMiResena("");
+
+    try {
+      let resultado;
+
+      if (miResena?.id) {
+        resultado = await actualizarResena(
+          miResena.id,
+          estrellasResena,
+          comentarioResena.trim()
+        );
+
+        setMensajeMiResena("Tu reseña se actualizó correctamente.");
+      } else {
+        resultado = await publicarResena(
+          negocioSeleccionado.id,
+          estrellasResena,
+          comentarioResena.trim()
+        );
+
+        setMensajeMiResena("¡Tu reseña se publicó correctamente!");
+      }
+
+      setMiResena(resultado);
+      setEstrellasResena(resultado?.estrellas || estrellasResena);
+      setComentarioResena(resultado?.comentario || comentarioResena.trim());
+      setEditandoResena(false);
+
+      // ACTUALIZAR EL PROMEDIO Y LAS RESEÑAS DESTACADAS.
+      const resenasActualizadas = await obtenerResenasDestacadas(
+        negocioSeleccionado.id
+      );
+
+      setResenasNegocio(resenasActualizadas);
+    } catch (error) {
+      console.error("Error al guardar la reseña:", error);
+
+      setErrorMiResena(
+        error.message || "No fue posible guardar tu reseña."
+      );
+    } finally {
+      setGuardandoResena(false);
+    }
+  };
+
+  // ACTIVAR LA EDICIÓN DE LA RESEÑA PROPIA.
+  const manejarEditarResena = () => {
+    if (!miResena) return;
+
+    setEstrellasResena(miResena.estrellas || 5);
+    setComentarioResena(miResena.comentario || "");
+    setEditandoResena(true);
+    setErrorMiResena("");
+    setMensajeMiResena("");
+  };
+
+  // CANCELAR LA EDICIÓN DE LA RESEÑA.
+  const manejarCancelarEdicionResena = () => {
+    setEstrellasResena(miResena?.estrellas || 5);
+    setComentarioResena(miResena?.comentario || "");
+    setEditandoResena(false);
+    setErrorMiResena("");
+    setMensajeMiResena("");
+  };
+
+  // ELIMINAR LA RESEÑA PROPIA.
+  const manejarEliminarResena = async () => {
+    if (!miResena?.id) return;
+
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar tu reseña?"
+    );
+
+    if (!confirmar) return;
+
+    setGuardandoResena(true);
+    setErrorMiResena("");
+    setMensajeMiResena("");
+
+    try {
+      await eliminarResena(miResena.id);
+
+      setMiResena(null);
+      setEstrellasResena(5);
+      setComentarioResena("");
+      setEditandoResena(false);
+
+      setMensajeMiResena("Tu reseña se eliminó correctamente.");
+
+      // ACTUALIZAR EL PROMEDIO Y LAS RESEÑAS DESTACADAS.
+      const resenasActualizadas = await obtenerResenasDestacadas(
+        negocioSeleccionado.id
+      );
+
+      setResenasNegocio(resenasActualizadas);
+    } catch (error) {
+      console.error("Error al eliminar la reseña:", error);
+
+      setErrorMiResena(
+        error.message || "No fue posible eliminar tu reseña."
+      );
+    } finally {
+      setGuardandoResena(false);
+    }
   };
 
   return (
@@ -1178,6 +1453,117 @@ const InicioUsuario = () => {
           0%, 100% { opacity: .45; transform: scale(.85); }
           50% { opacity: 1; transform: scale(1.25); }
         }
+
+
+        .ficha-resenas-resumen {
+          display: flex;
+          align-items: center;
+          margin: 12px 0 20px;
+        }
+
+        .ficha-resenas-promedio {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .ficha-resenas-promedio strong {
+          font-size: 36px;
+          font-weight: 800;
+          color: #252525;
+        }
+
+        .ficha-resenas-promedio > span {
+          color: #e5a900;
+          font-size: 30px;
+        }
+
+        .ficha-resenas-promedio small {
+          width: 100%;
+          color: #777;
+          font-size: 13px;
+        }
+
+        .ficha-resenas-lista {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .ficha-resena-card {
+          padding: 15px;
+          border: 1px solid #e8e8e8;
+          border-radius: 12px;
+          background: #fff;
+        }
+
+        .ficha-resena-encabezado {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+        }
+
+        .ficha-resena-encabezado strong {
+          color: #252525;
+          font-size: 14px;
+        }
+
+        .ficha-resena-encabezado span {
+          color: #e5a900;
+          font-size: 17px;
+          letter-spacing: 2px;
+          white-space: nowrap;
+        }
+
+        .ficha-resena-card p {
+          margin: 0 0 10px;
+          color: #555;
+          font-size: 14px;
+          line-height: 1.5;
+          overflow-wrap: anywhere;
+        }
+
+        .ficha-resena-card small {
+          color: #999;
+          font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+          .ficha-resena-encabezado {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 5px;
+          }
+        }
+
+        .ficha-ver-mas-resenas {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 16px;
+          padding: 10px 17px;
+          border: 1px solid #238b83;
+          border-radius: 9px;
+          background: #fff;
+          color: #167c73;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all .2s ease;
+        }
+
+        .ficha-ver-mas-resenas:hover {
+          background: #e8f4f1;
+          transform: translateY(-1px);
+        }
+
+        .ficha-ver-mas-resenas:focus-visible {
+          outline: 3px solid rgba(35, 139, 131, .25);
+          outline-offset: 3px;
+        }
       `}</style>
 
       {/* ENCABEZADO */}
@@ -1251,7 +1637,7 @@ const InicioUsuario = () => {
                   <h3><span>☎</span> Contacto</h3>
                   <div className="ficha-grid-contacto">
                     {negocioSeleccionado.telefono && (
-                      <a className="ficha-dato" href={`tel:${negocioSeleccionado.telefono}`}>
+                      <a className="ficha-dato" /*href={`tel:${negocioSeleccionado.telefono}`}*/>
                         <span className="ficha-dato-icono">☎</span>
                         <span><small>Teléfono</small><strong>{negocioSeleccionado.telefono}</strong></span>
                       </a>
@@ -1259,7 +1645,7 @@ const InicioUsuario = () => {
                     {negocioSeleccionado.whatsapp && (
                       <a
                         className="ficha-dato"
-                        href={`https://wa.me/${String(negocioSeleccionado.whatsapp).replace(/\D/g, "")}`}
+                        /*href={`https://wa.me/${String(negocioSeleccionado.whatsapp).replace(/\D/g, "")}`}*/
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -1268,7 +1654,7 @@ const InicioUsuario = () => {
                       </a>
                     )}
                     {negocioSeleccionado.email && (
-                      <a className="ficha-dato" href={`mailto:${negocioSeleccionado.email}`}>
+                      <a className="ficha-dato" /*href={`mailto:${negocioSeleccionado.email}`}*/>
                         <span className="ficha-dato-icono">✉</span>
                         <span><small>Correo electrónico</small><strong>{negocioSeleccionado.email}</strong></span>
                       </a>
@@ -1352,6 +1738,253 @@ const InicioUsuario = () => {
                     <p className="ficha-sin-datos">Este negocio todavía no tiene fotografías adicionales.</p>
                   )}
                 </section>
+
+                 {/* RESEÑAS DEL NEGOCIO */}
+                <section className="ficha-seccion">
+                  <h3>Opiniones de nuestros usuarios</h3>
+
+                  {cargandoResenas ? (
+                    <p className="ficha-sin-datos">Cargando reseñas...</p>
+                  ) : errorResenas ? (
+                    <p className="ficha-sin-datos">{errorResenas}</p>
+                  ) : resenasNegocio.total > 0 ? (
+                    <>
+                      <div className="ficha-resenas-resumen">
+                        <div className="ficha-resenas-promedio">
+                          <span>Promedio: </span>
+                          <strong>{Number(resenasNegocio.promedio).toFixed(1)}</strong>
+                          <span>★</span>
+                          <small>
+                            {resenasNegocio.total} reseñas
+                          </small>
+                        </div>
+                      </div>
+
+                      <div className="ficha-resenas-lista">
+                        {[
+                          resenasNegocio.destacadas.cinco_estrellas,
+                          resenasNegocio.destacadas.intermedia,
+                          resenasNegocio.destacadas.una_estrella
+                        ]
+                          .filter(Boolean)
+                          .map((resena) => (
+                            <article
+                              className="ficha-resena-card"
+                              key={resena.id}
+                            >
+                              <div className="ficha-resena-encabezado">
+                                <strong>
+                                  Cliente anónimo
+                                </strong>
+
+                                <span>
+                                  {"★".repeat(resena.estrellas)}
+                                  {"☆".repeat(5 - resena.estrellas)}
+                                </span>
+                              </div>
+
+                              <p>
+                                {resena.comentario || "Sin comentario."}
+                              </p>
+
+                              {resena.creado_en && (
+                                <small>
+                                  {new Date(resena.creado_en).toLocaleDateString(
+                                    "es-MX",
+                                    {
+                                      day: "numeric",
+                                      month: "long",
+                                      year: "numeric"
+                                    }
+                                  )}
+                                </small>
+                              )}
+                            </article>
+                          ))}
+                      </div>
+                    </>
+                  
+                  ) : (
+                    <p className="ficha-sin-datos">
+                      Este negocio todavía no tiene reseñas.
+                    </p>
+                  )}
+
+                  {resenasNegocio.total > 0 && (
+                    <button
+                      type="button"
+                      className="ficha-ver-mas-resenas"
+                      onClick={manejarVerMasResenas}
+                    >
+                      Ver más reseñas →
+                    </button>
+                  )}
+                </section>
+
+                {/* RESEÑA PROPIA DEL USUARIO */}
+
+
+                                {/* RESEÑA PROPIA DEL USUARIO */}
+                <section className="ficha-seccion ficha-mi-resena">
+                  <h3>Mi opinión sobre este negocio</h3>
+
+                  {cargandoMiResena ? (
+                    <p className="ficha-sin-datos">
+                      Cargando tu reseña...
+                    </p>
+                  ) : !user?.id ? (
+                    <p className="ficha-sin-datos">
+                      Inicia sesión para compartir tu opinión sobre este negocio.
+                    </p>
+                  ) : miResena && !editandoResena ? (
+                    <div className="ficha-resena-propia">
+                      <div className="ficha-resena-encabezado">
+                        <strong>Tu reseña</strong>
+                        <span>
+                          {"★".repeat(miResena.estrellas || 0)}
+                          {"☆".repeat(5 - (miResena.estrellas || 0))}
+                        </span>
+                      </div>
+
+                      <p>
+                        {miResena.comentario || "Sin comentario."}
+                      </p>
+
+                      {miResena.creado_en && (
+                        <small>
+                          Publicada el{" "}
+                          {new Date(miResena.creado_en).toLocaleDateString(
+                            "es-MX",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric"
+                            }
+                          )}
+                        </small>
+                      )}
+
+                      <div className="ficha-resena-acciones">
+                        <button
+                          type="button"
+                          onClick={manejarEditarResena}
+                          disabled={guardandoResena}
+                        >
+                          Editar reseña
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={manejarEliminarResena}
+                          disabled={guardandoResena}
+                        >
+                          Eliminar reseña
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="ficha-resena-formulario">
+                      <p>
+                        {miResena
+                          ? "Modifica tu opinión sobre este negocio."
+                          : "¿Ya visitaste este negocio? Comparte tu experiencia con otros usuarios."}
+                      </p>
+
+                      <label className="ficha-resena-label">
+                        Tu calificación
+                      </label>
+
+                      <div className="ficha-resena-estrellas">
+                        {[1, 2, 3, 4, 5].map((estrella) => (
+                          <button
+                            key={estrella}
+                            type="button"
+                            onClick={() => setEstrellasResena(estrella)}
+                            disabled={guardandoResena}
+                            aria-label={`Calificar con ${estrella} estrellas`}
+                            className={
+                              estrella <= estrellasResena
+                                ? "estrella-activa"
+                                : "estrella-inactiva"
+                            }
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+
+                      <label
+                        className="ficha-resena-label"
+                        htmlFor="comentario-resena"
+                      >
+                        Tu comentario
+                      </label>
+
+                      <textarea
+                        id="comentario-resena"
+                        value={comentarioResena}
+                        onChange={(e) => setComentarioResena(e.target.value)}
+                        placeholder="Cuéntanos cómo fue tu experiencia..."
+                        rows={4}
+                        maxLength={1000}
+                        disabled={guardandoResena}
+                      />
+
+                      <small>
+                        {comentarioResena.length}/1000 caracteres
+                      </small>
+
+                      {errorMiResena && (
+                        <p className="ficha-resena-error">
+                          {errorMiResena}
+                        </p>
+                      )}
+
+                      {mensajeMiResena && (
+                        <p className="ficha-resena-mensaje">
+                          {mensajeMiResena}
+                        </p>
+                      )}
+
+                      <div className="ficha-resena-acciones">
+                        <button
+                          type="button"
+                          onClick={manejarGuardarResena}
+                          disabled={guardandoResena}
+                        >
+                          {guardandoResena
+                            ? "Guardando..."
+                            : miResena
+                              ? "Guardar cambios"
+                              : "Publicar reseña"}
+                        </button>
+
+                        {editandoResena && (
+                          <button
+                            type="button"
+                            onClick={manejarCancelarEdicionResena}
+                            disabled={guardandoResena}
+                          >
+                            Cancelar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {errorMiResena && miResena && !editandoResena && (
+                    <p className="ficha-resena-error">
+                      {errorMiResena}
+                    </p>
+                  )}
+
+                  {mensajeMiResena && miResena && !editandoResena && (
+                    <p className="ficha-resena-mensaje">
+                      {mensajeMiResena}
+                    </p>
+                  )}
+                </section>
+
 
                 {negocioSeleccionado.creado_en && (
                   <p className="ficha-fecha-registro">

@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 
@@ -6,7 +5,8 @@ const router = express.Router();
 const {
     consultarFotosNegocio,
     agregarFotosNegocio,
-    quitarFotoNegocio
+    quitarFotoNegocio,
+    consultarFotosNegocioPublicas
 } = require('../controllers/fotosNegocioController');
 
 // Middleware de autenticación.
@@ -18,6 +18,12 @@ const {
 const {
     subirGaleriaNegocio
 } = require('../middlewares/subirGaleriaNegocio');
+
+// CONSULTAR GALERÍA PÚBLICA DE UN NEGOCIO.
+router.get(
+    '/:negocioId/fotografias/publicas',
+    consultarFotosNegocioPublicas
+);
 
 // CONSULTAR GALERÍA DE UN NEGOCIO.
 router.get(

@@ -1,4 +1,3 @@
-
 /* CONTENEDOR PRINCIPAL */
 .recomendaciones-pagina {
   width: 100%;
@@ -7,7 +6,6 @@
   padding: 20px 26px;
   color: #24454c;
 }
-
 /* BOTÓN REGRESAR */
 .recomendaciones-volver {
   display: inline-block;
@@ -19,11 +17,9 @@
   cursor: pointer;
   margin-bottom: 15px;
 }
-
 .recomendaciones-volver:hover {
   color: #105c56;
 }
-
 /* CUADRÍCULA GENERAL: 3 COLUMNAS Y 4 FILAS */
 .recomendaciones-cuadricula {
   display: grid;
@@ -32,7 +28,6 @@
   gap: 14px;
   width: 100%;
 }
-
 /* TARJETAS GENERALES */
 .recomendaciones-tarjeta {
   min-width: 0;
@@ -43,11 +38,9 @@
   box-shadow: 0 3px 10px rgba(30, 70, 75, 0.04);
   transition: box-shadow 0.2s ease;
 }
-
 .recomendaciones-tarjeta:hover {
   box-shadow: 0 6px 16px rgba(30, 70, 75, 0.09);
 }
-
 .recomendaciones-tarjeta-muro {
   height: 170px;
   display: flex;
@@ -55,7 +48,6 @@
   overflow: hidden;
   padding: 12px 15px;
 }
-
 /* INFORMACIÓN DEL NEGOCIO */
 .recomendaciones-negocio-resena {
   display: flex;
@@ -65,7 +57,6 @@
   padding-bottom: 8px;
   border-bottom: 1px solid #edf1f2;
 }
-
 .recomendaciones-negocio-resena img,
 .recomendaciones-negocio-icono {
   width: 45px;
@@ -74,7 +65,6 @@
   border-radius: 10px;
   object-fit: cover;
 }
-
 .recomendaciones-negocio-icono {
   display: grid;
   place-items: center;
@@ -82,14 +72,12 @@
   color: #238b83;
   font-size: 20px;
 }
-
 .recomendaciones-negocio-resena > div:last-child {
   display: flex;
   flex-direction: column;
   gap: 3px;
   min-width: 0;
 }
-
 .recomendaciones-negocio-resena strong {
   display: block;
   color: #173f47;
@@ -98,7 +86,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .recomendaciones-negocio-resena small {
   display: block;
   color: #238b83;
@@ -108,7 +95,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 /* CLIENTE Y ESTRELLAS */
 .recomendaciones-tarjeta-muro .recomendaciones-tarjeta-encabezado {
   display: flex;
@@ -118,20 +104,17 @@
   margin-top: 9px;
   min-width: 0;
 }
-
 .recomendaciones-cliente {
   color: #24454c;
   font-size: 12px;
   font-weight: 700;
 }
-
 .recomendaciones-estrellas {
   color: #e5a900;
   font-size: 15px;
   letter-spacing: 1px;
   white-space: nowrap;
 }
-
 /* COMENTARIO ORIGINAL DEL CLIENTE */
 .recomendaciones-tarjeta-muro .recomendaciones-comentario {
   margin: 9px 0 5px;
@@ -139,42 +122,40 @@
   font-size: 12px;
   line-height: 1.45;
   overflow-wrap: anywhere;
-
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 /* FECHA */
 .recomendaciones-fecha {
   margin-top: auto;
   color: #89989c;
   font-size: 10px;
 }
-
+/* En el muro, la fecha no debe empujar el comentario fuera de la tarjeta. */
+.recomendaciones-tarjeta-muro .recomendaciones-fecha {
+  margin-top: 6px;
+  flex-shrink: 0;
+}
 /* ANIMACIÓN INDIVIDUAL DE LAS TARJETAS */
 .recomendacion-animada {
   animation: cambiarRecomendacion 0.75s ease both;
 }
-
 @keyframes cambiarRecomendacion {
   0% {
     opacity: 0;
     transform: translateX(25px);
   }
-
   65% {
     opacity: 0.8;
     transform: translateX(-3px);
   }
-
   100% {
     opacity: 1;
     transform: translateX(0);
   }
 }
-
 /* ENCABEZADO DE NEGOCIO ESPECÍFICO */
 .recomendaciones-encabezado {
   display: flex;
@@ -185,39 +166,33 @@
   border-radius: 16px;
   background: #fff;
 }
-
 .recomendaciones-encabezado img {
   width: 90px;
   height: 90px;
   object-fit: cover;
   border-radius: 12px;
 }
-
 .recomendaciones-encabezado span {
   color: #238b83;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
 }
-
 .recomendaciones-encabezado h1 {
   margin: 6px 0;
   color: #173f47;
   font-size: 25px;
 }
-
 .recomendaciones-encabezado p {
   margin: 0;
   color: #788b90;
   font-size: 13px;
 }
-
 .recomendaciones-resumen {
   display: flex;
   gap: 15px;
   margin: 18px 0;
 }
-
 .recomendaciones-promedio,
 .recomendaciones-total {
   flex: 1;
@@ -229,50 +204,41 @@
   border-radius: 12px;
   background: #fff;
 }
-
 .recomendaciones-promedio strong,
 .recomendaciones-total strong {
   color: #173f47;
   font-size: 28px;
 }
-
 .recomendaciones-promedio > span {
   color: #e5a900;
   font-size: 26px;
 }
-
 .recomendaciones-promedio small,
 .recomendaciones-total span {
   color: #71848a;
   font-size: 13px;
 }
-
 .recomendaciones-titulo-negocio {
   margin: 20px 0 12px;
 }
-
 .recomendaciones-titulo-negocio h2 {
   color: #173f47;
   font-size: 20px;
 }
-
 /* LISTA DE RESEÑAS INDIVIDUALES */
 .recomendaciones-lista {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
 .recomendaciones-lista .recomendaciones-tarjeta {
   padding: 18px;
 }
-
 .recomendaciones-lista .recomendaciones-tarjeta-encabezado {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
 .recomendaciones-avatar {
   display: grid;
   place-items: center;
@@ -284,27 +250,22 @@
   color: #238b83;
   font-size: 20px;
 }
-
 .recomendaciones-autor {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .recomendaciones-autor strong {
   color: #24454c;
   font-size: 14px;
 }
-
 .recomendaciones-autor small {
   color: #89989c;
   font-size: 12px;
 }
-
 .recomendaciones-lista .recomendaciones-estrellas {
   margin-left: auto;
 }
-
 .recomendaciones-lista .recomendaciones-comentario {
   margin: 14px 0 0;
   color: #52676d;
@@ -312,7 +273,6 @@
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
-
 /* VACÍO Y ERROR */
 .recomendaciones-vacio,
 .recomendaciones-error {
@@ -322,24 +282,20 @@
   background: #fff;
   text-align: center;
 }
-
 .recomendaciones-vacio > span {
   color: #e5a900;
   font-size: 36px;
 }
-
 .recomendaciones-vacio h2,
 .recomendaciones-vacio h3,
 .recomendaciones-error h2 {
   color: #173f47;
 }
-
 .recomendaciones-vacio p,
 .recomendaciones-error p {
   color: #71848a;
   line-height: 1.6;
 }
-
 .recomendaciones-error button {
   padding: 11px 18px;
   border: none;
@@ -349,125 +305,326 @@
   font-weight: 700;
   cursor: pointer;
 }
-
 .recomendaciones-cargando {
   padding: 35px;
   color: #71848a;
   text-align: center;
 }
-
 /* TABLETS */
 @media (max-width: 850px) {
   .recomendaciones-pagina {
     padding: 16px;
   }
-
   .recomendaciones-cuadricula {
     gap: 9px;
   }
-
   .recomendaciones-tarjeta-muro {
     height: 165px;
     padding: 9px;
   }
-
   .recomendaciones-negocio-resena img,
   .recomendaciones-negocio-icono {
     width: 36px;
     height: 36px;
   }
-
   .recomendaciones-negocio-resena strong {
     font-size: 11px;
   }
-
   .recomendaciones-negocio-resena small {
     font-size: 9px;
   }
-
   .recomendaciones-cliente {
     font-size: 10px;
   }
-
   .recomendaciones-estrellas {
     font-size: 12px;
   }
-
   .recomendaciones-tarjeta-muro .recomendaciones-comentario {
     font-size: 10px;
   }
 }
-
 /* CELULARES */
 @media (max-width: 600px) {
   .recomendaciones-pagina {
     padding: 12px;
   }
-
   .recomendaciones-cuadricula {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
   }
-
   .recomendaciones-tarjeta-muro {
     height: 155px;
     padding: 7px;
   }
-
   .recomendaciones-negocio-resena {
     gap: 5px;
     padding-bottom: 5px;
   }
-
   .recomendaciones-negocio-resena img,
   .recomendaciones-negocio-icono {
     width: 28px;
     height: 28px;
   }
-
   .recomendaciones-negocio-resena strong {
     font-size: 9px;
   }
-
   .recomendaciones-negocio-resena small {
     font-size: 8px;
   }
-
   .recomendaciones-cliente {
     font-size: 8px;
   }
-
   .recomendaciones-estrellas {
     font-size: 9px;
     letter-spacing: 0;
   }
-
   .recomendaciones-tarjeta-muro .recomendaciones-comentario {
     font-size: 9px;
     line-height: 1.35;
     -webkit-line-clamp: 3;
   }
-
   .recomendaciones-fecha {
     font-size: 8px;
   }
-
   .recomendaciones-resumen {
     flex-direction: column;
   }
-
   .recomendaciones-encabezado h1 {
     font-size: 21px;
   }
 }
-
 /* ACCESIBILIDAD */
 @media (prefers-reduced-motion: reduce) {
   .recomendacion-animada {
     animation: none;
   }
-
   .recomendaciones-tarjeta {
     transition: none;
   }
+}
+/* =====================================
+   MENÚ PARA REPORTAR RESEÑAS
+===================================== */
+.recomendaciones-tarjeta,
+.recomendaciones-tarjeta-muro {
+    position: relative;
+}
+.recomendaciones-acciones-reporte {
+    position: absolute;
+    right: 12px;
+    bottom: 8px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+.recomendaciones-menu-reporte {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #555;
+    font-size: 25px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.recomendaciones-menu-reporte:hover {
+    background: #f0f0f0;
+}
+.recomendaciones-opcion-reporte {
+    position: absolute;
+    top: auto;
+    right: 0;
+    bottom: calc(100% + 6px);
+    z-index: 10;
+    width: 175px;
+    padding: 11px 14px;
+    border: 1px solid #e5e5e5;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.13);
+    color: #333;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.recomendaciones-opcion-reporte:hover {
+    background: #f8f1f1;
+    color: #8b2635;
+}
+/* =====================================
+   MODAL DE REPORTES
+===================================== */
+.reporte-modal-fondo {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.reporte-modal {
+    width: 100%;
+    max-width: 470px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 27px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+.reporte-modal-encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.reporte-modal-encabezado span {
+    color: #8b2635;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.reporte-modal-encabezado h2 {
+    margin: 6px 0 0;
+    color: #252525;
+    font-size: 23px;
+}
+.reporte-modal-encabezado button {
+    border: none;
+    background: transparent;
+    color: #777;
+    font-size: 27px;
+    cursor: pointer;
+}
+.reporte-modal-descripcion {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+.reporte-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.reporte-modal form label {
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+.reporte-modal form label span {
+    color: #888;
+    font-weight: 400;
+}
+.reporte-modal select,
+.reporte-modal textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+.reporte-modal select:focus,
+.reporte-modal textarea:focus {
+    border-color: #8b2635;
+}
+.reporte-modal textarea {
+    resize: vertical;
+}
+.reporte-caracteres {
+    color: #888;
+    font-size: 11px;
+    text-align: right;
+}
+.reporte-error {
+    padding: 10px;
+    background: #fff0f0;
+    color: #b42318;
+    border-radius: 7px;
+    font-size: 13px;
+}
+.reporte-modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+.reporte-modal-acciones button,
+.reporte-exito button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.reporte-modal-acciones button:first-child {
+    background: #eee;
+    color: #444;
+}
+.reporte-modal-acciones button:last-child,
+.reporte-exito button {
+    background: #8b2635;
+    color: white;
+}
+.reporte-modal button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+/* =====================================
+   CONFIRMACIÓN DE REPORTE
+===================================== */
+.reporte-exito {
+    text-align: center;
+    padding: 15px 5px;
+}
+.reporte-exito > span {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e6f5eb;
+    color: #21834a;
+    font-size: 30px;
+    font-weight: bold;
+}
+.reporte-exito h2 {
+    color: #252525;
+    font-size: 22px;
+}
+.reporte-exito p {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 12px 0 22px;
+}
+@media (max-width: 480px) {
+    .reporte-modal {
+        padding: 21px;
+    }
+    .reporte-modal-acciones {
+        flex-direction: column-reverse;
+    }
+    .reporte-modal-acciones button {
+        width: 100%;
+    }
 }

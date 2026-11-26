@@ -8,7 +8,8 @@ const {
     consultarResenaPropia,
     publicarResena,
     modificarResena,
-    quitarResena
+    quitarResena,
+    reportarResena
 } = require('../controllers/resenasController');
 
 const {
@@ -42,6 +43,13 @@ router.post(
     '/negocio/:negocioId',
     verificarToken,
     publicarResena
+);
+
+// REPORTAR UNA RESEÑA.
+router.post(
+    '/:resenaId/reportar',
+    verificarToken,
+    reportarResena
 );
 
 // ACTUALIZAR UNA RESEÑA PROPIA.

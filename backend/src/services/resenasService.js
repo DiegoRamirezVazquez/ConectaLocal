@@ -335,6 +335,83 @@ const obtenerResenaPropia = async (negocioId, perfilId) => {
 };
 
 
+// CREAR UN REPORTE DE RESEÑA.
+const crearReporteResena = async (
+    resenaId,
+    perfilId,
+    motivo,
+    descripcion
+) => {
+    // VERIFICAR QUE LA RESEÑA EXISTA.
+    const { data: resena, error: errorResena } =
+        await supabaseAdmin
+            .from('resenas')
+            .select('id')
+            .eq('id', resenaId)
+            .maybeSingle();
+
+    if (errorResena) {
+        console.error(
+            'Error al verificar reseña reportada:',
+            errorResena.message
+        );
+
+        throw new Error('No fue posible verificar la reseña.');
+    }
+
+    if (!resena) {
+        const error = new Error(
+            'La reseña que intentas reportar no existe.'
+        );
+
+        error.codigo = 'RESENA_NO_ENCONTRADA';
+        throw error;
+    }
+
+    // REGISTRAR EL REPORTE.
+    const { data, error } = await supabaseAdmin
+        .from('reportes_resenas')
+        .insert({
+            resena_id: resenaId,
+            usuario_id: perfilId,
+            motivo,
+            descripcion,
+            estado: 'pendiente'
+        })
+        .select(`
+            id,
+            resena_id,
+            usuario_id,
+            motivo,
+            descripcion,
+            estado,
+            fecha_reporte
+        `)
+        .single();
+
+    if (error) {
+        console.error(
+            'Error al crear reporte de reseña:',
+            error.message
+        );
+
+        // EVITAR REPORTES DUPLICADOS.
+        if (error.code === '23505') {
+            const errorDuplicado = new Error(
+                'Ya has reportado esta reseña anteriormente.'
+            );
+
+            errorDuplicado.codigo = 'REPORTE_DUPLICADO';
+            throw errorDuplicado;
+        }
+
+        throw new Error('No fue posible registrar el reporte.');
+    }
+
+    return data;
+};
+
+
 module.exports = {
     obtenerResenasNegocio,
     obtenerMuroResenas,
@@ -342,5 +419,6 @@ module.exports = {
     crearResena,
     actualizarResena,
     eliminarResena,
-    obtenerResenaPropia
+    obtenerResenaPropia,
+    crearReporteResena
 };

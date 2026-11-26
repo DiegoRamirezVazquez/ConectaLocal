@@ -5,7 +5,8 @@ const {
     actualizarResena,
     eliminarResena,
     obtenerResenaPropia,
-    obtenerMuroResenas
+    obtenerMuroResenas,
+    crearReporteResena
 } = require('../services/resenasService');
 
 // CONSULTAR TODAS LAS RESEÑAS DE UN NEGOCIO.
@@ -318,6 +319,97 @@ const quitarResena = async (req, res) => {
     }
 };
 
+// REPORTAR UNA RESEÑA.
+const reportarResena = async (req, res) => {
+    try {
+        const { resenaId } = req.params;
+        const perfilId = req.usuario.id;
+
+        const { motivo, descripcion } = req.body;
+
+        const motivosPermitidos = [
+            'ofensivo',
+            'acoso_amenazas',
+            'discriminacion',
+            'spam_publicidad',
+            'informacion_falsa',
+            'otro'
+        ];
+
+        // VALIDAR MOTIVO.
+        if (
+            typeof motivo !== 'string' ||
+            !motivosPermitidos.includes(motivo)
+        ) {
+            return res.status(400).json({
+                success: false,
+                codigo: 'MOTIVO_INVALIDO',
+                mensaje: 'Selecciona un motivo válido para reportar la reseña.'
+            });
+        }
+
+        // VALIDAR DESCRIPCIÓN.
+        if (
+            descripcion !== undefined &&
+            descripcion !== null &&
+            typeof descripcion !== 'string'
+        ) {
+            return res.status(400).json({
+                success: false,
+                codigo: 'DESCRIPCION_INVALIDA',
+                mensaje: 'La descripción debe ser texto.'
+            });
+        }
+
+        const descripcionLimpia = descripcion?.trim() || null;
+
+        if (descripcionLimpia && descripcionLimpia.length > 500) {
+            return res.status(400).json({
+                success: false,
+                codigo: 'DESCRIPCION_DEMASIADO_LARGA',
+                mensaje: 'La descripción no puede superar los 500 caracteres.'
+            });
+        }
+
+        const reporte = await crearReporteResena(
+            resenaId,
+            perfilId,
+            motivo,
+            descripcionLimpia
+        );
+
+        return res.status(201).json({
+            success: true,
+            mensaje: 'Reporte enviado correctamente.',
+            reporte
+        });
+
+    } catch (error) {
+        console.error('Error al reportar reseña:', error);
+
+        if (error.codigo === 'RESENA_NO_ENCONTRADA') {
+            return res.status(404).json({
+                success: false,
+                codigo: error.codigo,
+                mensaje: error.message
+            });
+        }
+
+        if (error.codigo === 'REPORTE_DUPLICADO') {
+            return res.status(409).json({
+                success: false,
+                codigo: error.codigo,
+                mensaje: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            codigo: 'ERROR_REPORTAR_RESENA',
+            mensaje: 'No fue posible enviar el reporte.'
+        });
+    }
+};
 
 module.exports = {
     consultarResenasNegocio,
@@ -326,5 +418,6 @@ module.exports = {
     consultarResenaPropia,
     publicarResena,
     modificarResena,
-    quitarResena
+    quitarResena,
+    reportarResena
 };

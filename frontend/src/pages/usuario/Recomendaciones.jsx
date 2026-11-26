@@ -4,7 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   obtenerNegocioPublico,
   obtenerResenasNegocio,
-  obtenerMuroResenas
+  obtenerMuroResenas,
+  reportarResena
 } from "../../services/negociosService";
 import "./Recomendaciones.css";
 
@@ -28,6 +29,15 @@ const Recomendaciones = () => {
 
   const indiceSiguienteRef = useRef(TARJETAS_VISIBLES);
   const bloqueActualRef = useRef(0);
+
+  // ESTADOS PARA REPORTAR RESEÑAS.
+  const [menuReporteAbierto, setMenuReporteAbierto] = useState(null);
+  const [resenaSeleccionada, setResenaSeleccionada] = useState(null);
+  const [motivoReporte, setMotivoReporte] = useState("");
+  const [descripcionReporte, setDescripcionReporte] = useState("");
+  const [enviandoReporte, setEnviandoReporte] = useState(false);
+  const [errorReporte, setErrorReporte] = useState("");
+  const [reporteEnviado, setReporteEnviado] = useState(false);
 
   // CARGAR INFORMACIÓN.
   useEffect(() => {
@@ -103,12 +113,10 @@ const Recomendaciones = () => {
     const intervalo = setInterval(() => {
       const bloque = bloqueActualRef.current;
       const inicio = bloque * TARJETAS_POR_CAMBIO;
-      const fin = inicio + TARJETAS_POR_CAMBIO;
 
       setResenasVisibles((anteriores) => {
         const siguientes = [...anteriores];
 
-        // Las reseñas que están fuera del bloque no pueden repetirse.
         const idsOcupados = new Set(
           anteriores.map((resena) => resena.id)
         );
@@ -141,7 +149,6 @@ const Recomendaciones = () => {
           intentos++;
         }
 
-        // Sustituir solamente las posiciones que tengan reseñas nuevas.
         const indicesCambiados = [];
 
         nuevasResenas.forEach((resena, posicion) => {
@@ -202,6 +209,90 @@ const Recomendaciones = () => {
       </>
     );
   };
+
+  // ABRIR EL FORMULARIO DE REPORTE.
+  const abrirFormularioReporte = (resena) => {
+    setResenaSeleccionada(resena);
+    setMotivoReporte("");
+    setDescripcionReporte("");
+    setErrorReporte("");
+    setReporteEnviado(false);
+    setMenuReporteAbierto(null);
+  };
+
+  // CERRAR EL FORMULARIO.
+  const cerrarFormularioReporte = () => {
+    if (enviandoReporte) return;
+
+    setResenaSeleccionada(null);
+    setMotivoReporte("");
+    setDescripcionReporte("");
+    setErrorReporte("");
+    setReporteEnviado(false);
+  };
+
+  // ENVIAR REPORTE AL BACKEND.
+  const manejarReporteResena = async (e) => {
+    e.preventDefault();
+
+    if (!resenaSeleccionada || !motivoReporte) {
+      setErrorReporte("Selecciona un motivo para continuar.");
+      return;
+    }
+
+    try {
+      setEnviandoReporte(true);
+      setErrorReporte("");
+
+      await reportarResena(
+        resenaSeleccionada.id,
+        motivoReporte,
+        descripcionReporte.trim()
+      );
+
+      setReporteEnviado(true);
+
+    } catch (error) {
+      console.error("Error al reportar reseña:", error);
+
+      setErrorReporte(
+        error.message || "No fue posible enviar el reporte."
+      );
+
+    } finally {
+      setEnviandoReporte(false);
+    }
+  };
+
+  // MENÚ DE OPCIONES PARA CADA RESEÑA.
+  const renderizarMenuReporte = (resena) => (
+    <div className="recomendaciones-acciones-reporte">
+      <button
+        type="button"
+        className="recomendaciones-menu-reporte"
+        aria-label="Opciones de reseña"
+        aria-expanded={menuReporteAbierto === resena.id}
+        onClick={() =>
+          setMenuReporteAbierto(
+            menuReporteAbierto === resena.id ? null : resena.id
+          )
+        }
+      >
+        ⋮
+      </button>
+
+      {menuReporteAbierto === resena.id && (
+        <button
+          type="button"
+          className="recomendaciones-opcion-reporte"
+          onClick={() => abrirFormularioReporte(resena)}
+        >
+          <span>⚑</span>
+          Reportar reseña
+        </button>
+      )}
+    </div>
+  );
 
   if (cargando) {
     return (
@@ -310,6 +401,9 @@ const Recomendaciones = () => {
                     }`}
                     key={resena.id}
                   >
+                    {/* OPCIONES DE LA RESEÑA */}
+                    {renderizarMenuReporte(resena)}
+
                     {/* INFORMACIÓN DEL NEGOCIO */}
                     <div className="recomendaciones-negocio-resena">
                       {negocioResena?.foto_principal_url ? (
@@ -382,6 +476,9 @@ const Recomendaciones = () => {
                   className="recomendaciones-tarjeta"
                   key={resena.id}
                 >
+                  {/* OPCIONES DE LA RESEÑA */}
+                  {renderizarMenuReporte(resena)}
+
                   <div className="recomendaciones-tarjeta-encabezado">
                     <div className="recomendaciones-avatar">
                       ★
@@ -415,6 +512,145 @@ const Recomendaciones = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* MODAL PARA REPORTAR RESEÑA */}
+      {resenaSeleccionada && (
+        <div
+          className="reporte-modal-fondo"
+          onClick={cerrarFormularioReporte}
+        >
+          <div
+            className="reporte-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reporte-modal-titulo"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {!reporteEnviado ? (
+              <>
+                <div className="reporte-modal-encabezado">
+                  <div>
+                    <span>MODERACIÓN DE CONTENIDO</span>
+                    <h2 id="reporte-modal-titulo">
+                      Reportar reseña
+                    </h2>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={cerrarFormularioReporte}
+                    disabled={enviandoReporte}
+                    aria-label="Cerrar"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <p className="reporte-modal-descripcion">
+                  Cuéntanos por qué consideras que esta reseña
+                  debe ser revisada por nuestro equipo.
+                </p>
+
+                <form onSubmit={manejarReporteResena}>
+                  <label htmlFor="motivo-reporte">
+                    Motivo del reporte
+                  </label>
+
+                  <select
+                    id="motivo-reporte"
+                    value={motivoReporte}
+                    onChange={(e) => setMotivoReporte(e.target.value)}
+                    required
+                    disabled={enviandoReporte}
+                  >
+                    <option value="">Selecciona un motivo</option>
+                    <option value="ofensivo">
+                      Lenguaje ofensivo o insultos
+                    </option>
+                    <option value="acoso_amenazas">
+                      Acoso o amenazas
+                    </option>
+                    <option value="discriminacion">
+                      Discriminación
+                    </option>
+                    <option value="spam_publicidad">
+                      Spam o publicidad
+                    </option>
+                    <option value="informacion_falsa">
+                      Información falsa
+                    </option>
+                    <option value="otro">
+                      Otro motivo
+                    </option>
+                  </select>
+
+                  <label htmlFor="descripcion-reporte">
+                    Descripción adicional
+                    <span> (opcional)</span>
+                  </label>
+
+                  <textarea
+                    id="descripcion-reporte"
+                    value={descripcionReporte}
+                    onChange={(e) =>
+                      setDescripcionReporte(e.target.value)
+                    }
+                    placeholder="Explica brevemente el motivo del reporte..."
+                    maxLength={500}
+                    rows={4}
+                    disabled={enviandoReporte}
+                  />
+
+                  <small className="reporte-caracteres">
+                    {descripcionReporte.length}/500 caracteres
+                  </small>
+
+                  {errorReporte && (
+                    <p className="reporte-error">
+                      {errorReporte}
+                    </p>
+                  )}
+
+                  <div className="reporte-modal-acciones">
+                    <button
+                      type="button"
+                      onClick={cerrarFormularioReporte}
+                      disabled={enviandoReporte}
+                    >
+                      Cancelar
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={enviandoReporte || !motivoReporte}
+                    >
+                      {enviandoReporte
+                        ? "Enviando..."
+                        : "Enviar reporte"}
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <div className="reporte-exito">
+                <span>✓</span>
+                <h2>Reporte enviado</h2>
+                <p>
+                  Gracias por ayudarnos a mantener una comunidad
+                  respetuosa. Tu reporte quedó registrado para su revisión.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={cerrarFormularioReporte}
+                >
+                  Entendido
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

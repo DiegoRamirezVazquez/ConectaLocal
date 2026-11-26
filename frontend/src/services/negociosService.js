@@ -234,3 +234,26 @@ export const eliminarResena = async (resenaId) => {
     return data;
 };
 
+// REPORTAR UNA RESEÑA.
+export const reportarResena = async (
+    resenaId,
+    motivo,
+    descripcion
+) => {
+    const data = await enviarSolicitud(
+        `/resenas/${resenaId}/reportar`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+            },
+            body: JSON.stringify({
+                motivo,
+                descripcion
+            })
+        }
+    );
+
+    return data.reporte;
+};
